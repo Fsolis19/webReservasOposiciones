@@ -200,3 +200,48 @@ class Claim(models.Model):
 
     def __str__(self):
         return f'Claim {self.id} by {self.customer.email}'
+
+#------------------------------------------------------------------------------------------
+
+class CourseType(models.Model):
+    name = models.CharField(max_length=50, unique=True, null=False, blank=False)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Course type'
+        verbose_name_plural = 'Course types'
+        ordering = ['name']
+
+
+class Course(models.Model):
+    name = models.CharField(max_length=200, null=False, blank=False)
+    price = models.DecimalField(max_digits=7, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0)])
+    city = models.CharField(max_length=200, null=False, blank=False)
+    course_type = models.ForeignKey(CourseType, null=True, on_delete=models.SET_NULL)
+    is_available = models.BooleanField(default=True)
+
+    def __str__(self):
+        return self.name
+
+    class Meta:
+        verbose_name = 'Course'
+        verbose_name_plural = 'Courses'
+        ordering = ['name']
+
+
+class CourseReservation(models.Model):
+    course = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
+    customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
+    reservation_date = models.DateTimeField(auto_now_add=True)
+    reserved_on = models.DateTimeField()
+    is_confirmed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Reservation {self.id} for {self.course.name} by {self.customer.name}'
+
+    class Meta:
+        verbose_name = 'Course reservation'
+        verbose_name_plural = 'Course reservations'
+        ordering = ['-reservation_date']
