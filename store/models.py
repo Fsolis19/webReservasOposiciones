@@ -221,6 +221,8 @@ class Course(models.Model):
     city = models.CharField(max_length=200, null=False, blank=False)
     course_type = models.ForeignKey(CourseType, null=True, on_delete=models.SET_NULL)
     is_available = models.BooleanField(default=True)
+    start_date = models.DateField(null=False, blank=False)  
+    end_date = models.DateField(null=False, blank=False)  
 
     def __str__(self):
         return self.name
