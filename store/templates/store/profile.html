@@ -16,9 +16,6 @@
       <li>Código postal: {{ user.customer.shippingaddress_set.last.zipcode }}</li>
       <li>País: {{ user.customer.shippingaddress_set.last.country }}</li>
     </ul>
-    <a href="{% url 'create_update_delivery' %}" class="btn btn-outline-secondary add-btn">Modificar datos de entrega</a>
-  {% else %}
-    <a href="{% url 'create_update_delivery' %}" class="btn btn-outline-secondary add-btn">Establecer datos de entrega</a>
   {% endif %}
   <br>
   <br>
