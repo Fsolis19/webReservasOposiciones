@@ -149,7 +149,12 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            customer, created = Customer.objects.get_or_create(email=user.email, name=form.cleaned_data['name'])
+            customer, created = Customer.objects.get_or_create(
+                email=user.email, 
+                name=form.cleaned_data['name'], 
+                adress=form.cleaned_data['adress'], 
+                phone=form.cleaned_data['phone']
+            )
             customer.user = user
             customer.save()
             login(request, user)

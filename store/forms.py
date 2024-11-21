@@ -2,7 +2,7 @@ from django import forms
 from django.contrib.auth import get_user_model
 from django.core.validators import validate_email
 from .models import Customer, ShippingAddress
-from django.core.validators import MinLengthValidator, RegexValidator
+from django.core.validators import MinLengthValidator, RegexValidator, MaxValueValidator, MinValueValidator
 
 class LoginForm(forms.Form):
     email = forms.EmailField(label='Correo Electrónico', required=True)
@@ -11,6 +11,8 @@ class LoginForm(forms.Form):
 class RegisterForm(forms.Form):
     name = forms.CharField(label='Nombre Completo', required=True)
     email = forms.EmailField(label='Correo Electrónico', required=True)
+    adress = forms.CharField(label='Dirección', max_length=200, required=True)
+    phone = forms.IntegerField(label='Teléfono', validators=[MaxValueValidator(999999999), MinValueValidator(100000000)])
     password = forms.CharField(label='Contraseña', widget=forms.PasswordInput(), required=True)
     password2 = forms.CharField(label='Confirmar Contraseña', widget=forms.PasswordInput(), required=True)
 

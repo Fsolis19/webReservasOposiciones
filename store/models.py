@@ -3,7 +3,7 @@ from django.db import models
 from django.contrib.auth.models import UserManager
 from django.contrib.auth.models import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from django.core.validators import MinValueValidator
+from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 
@@ -62,6 +62,9 @@ class Customer(models.Model):
     user = models.OneToOneField(SneakerUser, null=True, blank=True, on_delete = models.CASCADE)
     name = models.CharField(max_length=200 , null=False, blank=False)
     email = models.EmailField(max_length=200 , null=True, blank=False)
+    #NUEVOS CAMPOS PARA FORMULARIO
+    adress = models.CharField(max_length=200 , null=False, blank=False)
+    phone = models.IntegerField(null=False, blank=False, validators=[MaxValueValidator(999999999), MinValueValidator(100000000)])
 
     def __str__(self):
         return self.name
