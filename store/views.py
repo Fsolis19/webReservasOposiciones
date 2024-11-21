@@ -20,66 +20,63 @@ from django.views.decorators.csrf import csrf_exempt
 from .utils import cookieCart, cartData
 from django.db.models import Avg
 
-
 def store(request):
     query = request.GET.get('q', '')
 
-    colors = Color.objects.all()
-    sizes = Size.objects.all()
-    brands = Brand.objects.all()
+    course_types = CourseType.objects.all()  # Para los filtros de tipo de curso
+    city_list = Course.objects.values('city').distinct()  # Obtener lista de ciudades disponibles
 
-    color_id = request.GET.get('color', '')
-    size_id = request.GET.get('talla', '')
-    brand_id = request.GET.get('marca', '')
+    # Obtener filtros de la URL
+    price_min = request.GET.get('price_min', '')
+    price_max = request.GET.get('price_max', '')
+    course_type_id = request.GET.get('course_type', '')
+    city = request.GET.get('city', '')
 
     filters = {}
     filters_applied = ""
 
-    if not color_id and not size_id and 'marca' in request.session and not brand_id:
-        del request.session['marca']
-    if color_id:
-        color = colors.get(id=color_id)
-        filters['productcolor__color__id'] = color_id
-        filters_applied += f"Color: {color.name}. "
-    if size_id:
-        size = sizes.get(id=size_id)
-        filters['productsize__size__id'] = size_id
-        filters_applied += f"Talla: {size.name}. "
-    if 'marca' in request.session and not brand_id:
-        brand_id = request.session['marca']
-    elif brand_id:
-        request.session['marca'] = brand_id
-    if brand_id:
-        brand = brands.get(id=brand_id)
-        filters['brand__id'] = brand_id
-        filters_applied += f"Marca: {brand.name}. "
-    
+    if price_min:
+        filters['price__gte'] = price_min
+        filters_applied += f"Precio mínimo: {price_min}. "
+    if price_max:
+        filters['price__lte'] = price_max
+        filters_applied += f"Precio máximo: {price_max}. "
+    if course_type_id:
+        course_type = course_types.get(id=course_type_id)
+        filters['course_type__id'] = course_type_id
+        filters_applied += f"Tipo de curso: {course_type.name}. "
+    if city:
+        filters['city__icontains'] = city
+        filters_applied += f"Ciudad: {city}. "
+
     cart = cartData(request)
 
     if request.user.is_authenticated:
         customer = request.user.customer
-        order, created = Order.objects.get_or_create(customer = customer, status=Status.objects.get(name='No realizado'))
+        order, created = Order.objects.get_or_create(customer=customer, status=Status.objects.get(name='No realizado'))
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
         items = []
         order = {'get_cart_total': 0, 'get_cart_items': 0}
         cartItems = order['get_cart_items']
-    products = Product.objects.filter(name__icontains=query, **filters)
+
+    courses = Course.objects.filter(name__icontains=query, **filters)
 
     context = {
-        'products': products, 
+        'courses': courses, 
         'query': query, 
-        'colors': colors, 
-        'sizes': sizes, 
-        'brands': brands, 
-        'color_id': color_id, 
-        'size_id': size_id, 
-        'brand_id': brand_id,
+        'course_types': course_types, 
+        'city_list': city_list, 
+        'course_type_id': course_type_id, 
+        'city': city,
+        'price_min': price_min,
+        'price_max': price_max,
         'filters_applied': filters_applied,
         'cartItems': cart['cartItems'],
     }
     return render(request, 'store/store.html', context)
+
 
 def cart(request):
     cart = cartData(request)
