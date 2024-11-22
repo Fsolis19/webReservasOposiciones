@@ -220,6 +220,7 @@ class CourseType(models.Model):
 
 class Course(models.Model):
     name = models.CharField(max_length=200, null=False, blank=False)
+    image = models.ImageField(upload_to='courses')
     price = models.DecimalField(max_digits=7, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0)])
     city = models.CharField(max_length=200, null=False, blank=False)
     course_type = models.ForeignKey(CourseType, null=True, on_delete=models.SET_NULL)

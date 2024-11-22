@@ -1,0 +1,23 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+<div class="container">
+    <h1>{{ course.name }}</h1>
+    <hr>
+
+    <div class="row">
+        <div class="col-lg-8">
+            <p><strong>Tipo de curso:</strong> {{ course.course_type.name }}</p>
+            <p><strong>Ciudad:</strong> {{ course.city }}</p>
+            <p><strong>Precio:</strong> {{ course.price|floatformat:2 }} €</p>
+            <p><strong>Duración:</strong> {{ duration }} días</p>
+            <p><strong>Fecha de inicio:</strong> {{ course.start_date }}</p>
+            <p><strong>Fecha de fin:</strong> {{ course.end_date }}</p>
+            <p><strong>Disponibilidad:</strong> {{ is_available|yesno:"Disponible,No disponible" }}</p>
+        </div>
+        <div class="col-lg-4">
+            <button class="btn btn-primary">Reservar curso</button>
+        </div>
+    </div>
+</div>
+{% endblock %}

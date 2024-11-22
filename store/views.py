@@ -105,6 +105,33 @@ def about(request):
     context = {'cartItems': cart['cartItems']}
     return render(request, 'store/about.html', context)
 
+from django.shortcuts import get_object_or_404, render
+
+def courseDetails(request, course_id):
+    # Obtener datos del carrito
+    cart = cartData(request)
+
+    # Obtener el curso específico o devolver un 404 si no existe
+    course = get_object_or_404(Course, pk=course_id)
+
+    # Calcular la duración del curso en días
+    duration = (course.end_date - course.start_date).days
+
+    # Comprobar si el curso está disponible
+    is_available = course.is_available
+
+    return render(
+        request, 
+        'store/course.html', 
+        {
+            'course': course,
+            'cartItems': cart['cartItems'], 
+            'duration': duration,
+            'is_available': is_available,
+        }
+    )
+
+"""
 def productDetails(request, producto_id):
     cart = cartData(request)
         
@@ -117,6 +144,7 @@ def productDetails(request, producto_id):
     sizes = producto.productsize_set.all().order_by('size__name')
     return render(request, 'store/product.html', {'product': producto, 'colors': colors, 'sizes': sizes, 'cartItems': cart['cartItems'],'average_rating': average_rating, 'ratings': ratings})
 
+"""
 
 def auth_login(request):
     if request.method == 'POST':
