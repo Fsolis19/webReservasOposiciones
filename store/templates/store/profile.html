@@ -5,6 +5,8 @@
   <h2>Perfil de {{ customer.name }}</h2>
   <ul>
     <li>Email: {{ customer.email }}</li>
+    <li>Dirección: {{ customer.adress }}</li>
+    <li>Teléfono: {{ customer.phone }}</li>
   </ul>
 
   {% if user.customer.shippingaddress_set.exists %}

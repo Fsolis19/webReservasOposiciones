@@ -5,33 +5,43 @@
     <div class="col-lg-3">
         <form action="/" method="get">
             <!-- Filtro por nombre de curso -->
-            <input type="text" name="q" placeholder="Buscar curso" value="{{ query }}">
-
+             <div>
+                <input type="text" name="q" placeholder="Buscar curso" value="{{ query }}">
+             </div>
+            
             <!-- Filtro por precio mínimo -->
-            <label for="price_min">Precio mínimo</label>
-            <input type="number" name="price_min" value="{{ price_min }}" min="0">
+             <div>
+                <label for="price_min">Precio mínimo</label>
+                <input type="number" name="price_min" value="{{ price_min }}" min="0">
+             </div>
 
             <!-- Filtro por precio máximo -->
-            <label for="price_max">Precio máximo</label>
-            <input type="number" name="price_max" value="{{ price_max }}" min="0">
+             <div>
+                <label for="price_max">Precio máximo</label>
+                <input type="number" name="price_max" value="{{ price_max }}" min="0">
+             </div>
 
             <!-- Filtro por tipo de curso -->
-            <label for="course_type">Tipo de curso</label>
-            <select name="course_type">
-                <option value="">--Seleccionar tipo--</option>
-                {% for course_type in course_types %}
-                    <option value="{{ course_type.id }}" {% if course_type.id == course_type_id %}selected{% endif %}>{{ course_type.name }}</option>
-                {% endfor %}
-            </select>
+             <div>
+                <label for="course_type">Tipo de curso</label>
+                <select name="course_type">
+                    <option value="">--Seleccionar tipo--</option>
+                    {% for course_type in course_types %}
+                        <option value="{{ course_type.id }}" {% if course_type.id == course_type_id %}selected{% endif %}>{{ course_type.name }}</option>
+                    {% endfor %}
+                </select>
+             </div>
 
             <!-- Filtro por ciudad -->
-            <label for="city">Ciudad</label>
-            <select name="city">
-                <option value="">--Seleccionar ciudad--</option>
-                {% for city_item in city_list %}
-                    <option value="{{ city_item.city }}" {% if city_item.city == city %}selected{% endif %}>{{ city_item.city }}</option>
-                {% endfor %}
-            </select>
+             <div>
+                <label for="city">Ciudad</label>
+                <select name="city">
+                    <option value="">--Seleccionar ciudad--</option>
+                    {% for city_item in city_list %}
+                        <option value="{{ city_item.city }}" {% if city_item.city == city %}selected{% endif %}>{{ city_item.city }}</option>
+                    {% endfor %}
+                </select>
+             </div>
 
             <!-- Botón de filtro -->
             <button type="submit">Filtrar</button>
@@ -62,6 +72,9 @@
             </a>
             <div class="box-element product">
                 <h6><strong>{{ course.name }}</strong></h6>
+                <h8><strong>Ciudad:</strong> {{ course.city }}</h8>
+                <h8><strong>Tipo:</strong> {{ course.course_type }}</h8>
+                <h8><strong>Disponibilidad:</strong> {{ course.is_available|yesno:"Disponible,No disponible" }}</h8>
                 <hr>
                 <a href="{% url 'details' course.id %}">
                     <button class="btn btn-outline-secondary add-btn">Ver curso</button>
