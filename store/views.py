@@ -4,7 +4,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import *
-from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm
+from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm, CustumerUpdateForm
 from django.contrib.auth import login, logout
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -206,16 +206,15 @@ def profile(request, customer_id):
     return render(request, 'store/profile.html', {'customer': customer, 'shipping_address': shipping_address, 'customer_id': customer_id, 'cartItems': cart['cartItems']})
 
 @login_required
-def create_update_delivery(request):
+def create_update_profile(request):
     cart = cartData(request)
     customer = request.user.customer
     shipping_address = customer.shippingaddress_set.last()
-    form = ShippingAddressForm(request.POST or None, instance=shipping_address)
+    form = CustumerUpdateForm(request.POST or None, instance=customer)
     if request.method == 'POST':
         if form.is_valid():
-            new_shipping_address = form.save(commit=False)
-            new_shipping_address.customer = customer
-            new_shipping_address.save()
+            new_profile = form.save(commit=False)
+            new_profile.save()
             return redirect('store')
     return render(request, 'store/delivery_form.html', {'form': form, 'customer': customer, 'cartItems': cart['cartItems']})
 

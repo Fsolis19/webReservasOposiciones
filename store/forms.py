@@ -47,7 +47,22 @@ class RegisterForm(forms.Form):
             self.cleaned_data.get('password')
         )
         return user
-    
+
+class CustumerUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Customer
+        fields = ['name', 'email', 'adress', 'phone']
+        labels = {
+            'name': 'Nombre',
+            'email': 'Correo',
+            'adress': 'Dirección',
+            'phone': 'Teléfono'
+        }
+    name = forms.CharField(label='Nombre Completo', required=True)
+    email = forms.EmailField(label='Correo Electrónico', required=True)
+    adress = forms.CharField(label='Dirección', max_length=200, required=True)
+    phone = forms.IntegerField(label='Teléfono', validators=[MaxValueValidator(999999999), MinValueValidator(100000000)])
+
 class CustomerForm(forms.ModelForm):
     class Meta:
         model = Customer
