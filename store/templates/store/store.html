@@ -58,6 +58,40 @@
                     </select>
                 </div>
             </div>
+            <!-- Filtros de ordenación -->
+<div class="row g-3 align-items-center">
+    <!-- Ordenar por nombre (A-Z) -->
+    <div class="col-md-4">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sort_order" id="sort_name" value="name" {% if sort_order == 'name' %}checked{% endif %}>
+            <label class="form-check-label" for="sort_name">
+                Ordenar por nombre (A-Z)
+            </label>
+        </div>
+    </div>
+
+    <!-- Ordenar por precio (de menor a mayor) -->
+    <div class="col-md-4">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sort_order" id="sort_price" value="price" {% if sort_order == 'price' %}checked{% endif %}>
+            <label class="form-check-label" for="sort_price">
+                Ordenar por precio (Menor a mayor)
+            </label>
+        </div>
+    </div>
+
+    <!-- Ordenar por ciudad (A-Z) -->
+    <div class="col-md-4">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sort_order" id="sort_city" value="city" {% if sort_order == 'city' %}checked{% endif %}>
+            <label class="form-check-label" for="sort_city">
+                Ordenar por ciudad (A-Z)
+            </label>
+        </div>
+    </div>
+</div>
+
+
     
             <!-- Botón de filtro -->
             <div class="text-center mt-3">

@@ -31,6 +31,7 @@ def store(request):
     price_max = request.GET.get('price_max', '')
     course_type_id = request.GET.get('course_type', '')
     city = request.GET.get('city', '')
+    sort_order = request.GET.get('sort_order', None)
 
     filters = {}
     filters_applied = ""
@@ -62,7 +63,15 @@ def store(request):
         order = {'get_cart_total': 0, 'get_cart_items': 0}
         cartItems = order['get_cart_items']
 
+    # Aplicar los filtros de ordenación
     courses = Course.objects.filter(name__icontains=query, **filters)
+
+    if sort_order == 'name':
+        courses = courses.order_by('name')
+    elif sort_order == 'price':
+        courses = courses.order_by('price')
+    elif sort_order == 'city':
+        courses = courses.order_by('city')
 
     context = {
         'courses': courses,
@@ -76,8 +85,10 @@ def store(request):
         'price_max': price_max,
         'filters_applied': filters_applied,
         'cartItems': cart['cartItems'],
+        'sort_order': sort_order,  # Pasa el valor de la opción seleccionada
     }
     return render(request, 'store/store.html', context)
+
 
 
 def cart(request):
