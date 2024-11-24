@@ -57,6 +57,7 @@ def store(request):
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
+        customer = None
         items = []
         order = {'get_cart_total': 0, 'get_cart_items': 0}
         cartItems = order['get_cart_items']
@@ -64,7 +65,8 @@ def store(request):
     courses = Course.objects.filter(name__icontains=query, **filters)
 
     context = {
-        'courses': courses, 
+        'courses': courses,
+        'customer': customer, 
         'query': query, 
         'course_types': course_types, 
         'city_list': city_list, 

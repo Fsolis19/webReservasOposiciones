@@ -2,63 +2,71 @@
 {% load static %}
 {% block content %}
 <div class="row">
-    <div class="col-lg-3">
-        <form action="/" method="get">
-            <!-- Filtro por nombre de curso -->
-             <div>
-                <input type="text" name="q" placeholder="Buscar curso" value="{{ query }}">
-             </div>
-            
-            <!-- Filtro por precio mínimo -->
-             <div>
-                <label for="price_min">Precio mínimo</label>
-                <input type="number" name="price_min" value="{{ price_min }}" min="0">
-             </div>
-
-            <!-- Filtro por precio máximo -->
-             <div>
-                <label for="price_max">Precio máximo</label>
-                <input type="number" name="price_max" value="{{ price_max }}" min="0">
-             </div>
-
-            <!-- Filtro por tipo de curso -->
-             <div>
-                <label for="course_type">Tipo de curso</label>
-                <select name="course_type">
-                    <option value="">--Seleccionar tipo--</option>
-                    {% for course_type in course_types %}
-                        <option value="{{ course_type.id }}" {% if course_type.id == course_type_id %}selected{% endif %}>{{ course_type.name }}</option>
-                    {% endfor %}
-                </select>
-             </div>
-
-            <!-- Filtro por ciudad -->
-             <div>
-                <label for="city">Ciudad</label>
-                <select name="city">
-                    <option value="">--Seleccionar ciudad--</option>
-                    {% for city_item in city_list %}
-                        <option value="{{ city_item.city }}" {% if city_item.city == city %}selected{% endif %}>{{ city_item.city }}</option>
-                    {% endfor %}
-                </select>
-             </div>
-
+    {% if customer.admin == True %}
+    <a href="#">
+        <button class="btn btn-outline-secondary btn-sm add-btn" style="float: right; padding: 10px 20px; font-size: 20px;">Crear curso</button>
+    </a>
+    {% endif %}
+    <div class="col-lg-12">
+        <form action="/" method="get" class="p-3 bg-light rounded shadow">
+            <h5 class="text-center mb-4">Filtrar Cursos</h5>
+    
+            <!-- Filtros en una sola fila -->
+            <div class="row g-3 align-items-center">
+    
+                <!-- Buscar curso -->
+                <div class="col-md-3">
+                    <label for="q" class="form-label">Buscar curso</label>
+                    <input type="text" id="q" name="q" class="form-control" placeholder="Buscar curso" value="{{ query }}">
+                </div>
+    
+                <!-- Precio mínimo -->
+                <div class="col-md-2">
+                    <label for="price_min" class="form-label">Precio mínimo (€)</label>
+                    <input type="number" id="price_min" name="price_min" class="form-control" value="{{ price_min }}" min="0">
+                </div>
+    
+                <!-- Precio máximo -->
+                <div class="col-md-2">
+                    <label for="price_max" class="form-label">Precio máximo (€)</label>
+                    <input type="number" id="price_max" name="price_max" class="form-control" value="{{ price_max }}" min="0">
+                </div>
+    
+                <!-- Tipo de curso -->
+                <div class="col-md-3">
+                    <label for="course_type" class="form-label">Tipo de curso</label>
+                    <select id="course_type" name="course_type" class="form-select">
+                        <option value="">--Seleccionar tipo--</option>
+                        {% for course_type in course_types %}
+                            <option value="{{ course_type.id }}" {% if course_type.id|stringformat:"d" == course_type_id %}selected{% endif %}>
+                                {{ course_type.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <!-- Ciudad -->
+                <div class="col-md-2">
+                    <label for="city" class="form-label">Ciudad</label>
+                    <select id="city" name="city" class="form-select">
+                        <option value="">--Seleccionar ciudad--</option>
+                        {% for city_item in city_list %}
+                            <option value="{{ city_item.city }}" {% if city_item.city == city %}selected{% endif %}>
+                                {{ city_item.city }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+    
             <!-- Botón de filtro -->
-            <button type="submit">Filtrar</button>
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary px-5">Filtrar</button>
+            </div>
         </form>
     </div>
-
-    <div class="col-lg-9">
-        <h2>Todos los cursos:</h2>
-        <p>{{ filters_applied }}</p>
-        {% if courses|length == 0 %}
-            <p>No se encontraron cursos.</p>
-        {% elif courses|length > 1 %}
-            <p>[{{ courses|length }} resultados]</p>
-        {% else %}
-            <p>[{{ courses|length }} resultado]</p>
-        {% endif %}
-    </div>
+    
+    
 
     <!-- Mostrar los cursos filtrados -->
     {% for course in courses %}
@@ -79,6 +87,15 @@
                 <a href="{% url 'details' course.id %}">
                     <button class="btn btn-outline-secondary add-btn">Ver curso</button>
                 </a>
+                {% if customer.admin == True %}
+                    <a href="#">
+                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Editar curso</button>
+                    </a>
+                    <a href="#">
+                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Borrar curso</button>
+                    </a>
+                {% endif %}
+
                 <h4 style="display: inline-block; float: right;"><strong>
                     {{ course.price|floatformat:2 }} €
                 </strong></h4>

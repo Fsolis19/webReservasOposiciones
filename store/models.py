@@ -65,6 +65,7 @@ class Customer(models.Model):
     #NUEVOS CAMPOS PARA FORMULARIO
     adress = models.CharField(max_length=200 , null=False, blank=False)
     phone = models.IntegerField(null=False, blank=False, validators=[MaxValueValidator(999999999), MinValueValidator(100000000)])
+    admin = models.BooleanField(default=False)
 
     def __str__(self):
         return self.name
@@ -222,6 +223,7 @@ class Course(models.Model):
     name = models.CharField(max_length=200, null=False, blank=False)
     image = models.ImageField(upload_to='courses')
     price = models.DecimalField(max_digits=7, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0)])
+    details = models.CharField(max_length=200, null=True, blank=True)
     city = models.CharField(max_length=200, null=False, blank=False)
     course_type = models.ForeignKey(CourseType, null=True, on_delete=models.SET_NULL)
     is_available = models.BooleanField(default=True)
