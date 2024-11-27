@@ -1,3 +1,4 @@
+//He cambiado el nombre de product.js a course.js
 var sizeButtons = document.getElementsByClassName('size-btn');
 var updateCart = document.querySelector('.update-cart');
 for (var i = 0; i < sizeButtons.length; i++) {
