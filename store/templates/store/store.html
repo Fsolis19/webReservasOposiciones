@@ -3,7 +3,7 @@
 {% block content %}
 <div class="row">
     {% if customer.admin == True %}
-    <a href="#">
+    <a href="{% url 'createCourse' %}" method="post">
         <button class="btn btn-outline-secondary btn-sm add-btn" style="float: right; padding: 10px 20px; font-size: 20px;">Crear curso</button>
     </a>
     {% endif %}

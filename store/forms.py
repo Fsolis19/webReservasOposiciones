@@ -1,7 +1,7 @@
 from django import forms
 from django.contrib.auth import get_user_model
 from django.core.validators import validate_email
-from .models import Customer, ShippingAddress
+from .models import Customer, ShippingAddress, Course
 from django.core.validators import MinLengthValidator, RegexValidator, MaxValueValidator, MinValueValidator
 
 class LoginForm(forms.Form):
@@ -93,3 +93,27 @@ class ShippingAddressForm(forms.ModelForm):
         super(ShippingAddressForm, self).__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = [
+            'name', 'image', 'price', 'details', 
+            'city', 'course_type', 'is_available', 
+            'start_date', 'end_date'
+        ]
+        labels = {
+            'name': 'Nombre',
+            'image': 'Imagen',
+            'price': 'Precio',
+            'details': 'Detalles',
+            'city': 'Ciudad',
+            'course_type': 'Tipo del curso',
+            'is_available': 'Disponibilidad',
+            'start_date': 'Fecha de comienzo',
+            'end_date': 'Fecha final',
+        }
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
