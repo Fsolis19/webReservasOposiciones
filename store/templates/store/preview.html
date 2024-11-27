@@ -1,0 +1,51 @@
+{% extends 'store/main.html' %}
+{% load static %}
+{% block content %}
+<div class="row">
+    {% if customer.admin == True %}
+    <a href="#">
+        <button class="btn btn-outline-secondary btn-sm add-btn" style="float: right; padding: 10px 20px; font-size: 20px;">Crear curso</button>
+    </a>
+    {% endif %}
+    <!-- Botón para acceder a la función store -->
+    <form action="{% url 'store' %}" method="get">
+        <button type="submit">Ver todos los cursos</button>
+    </form>
+    <!-- Mostrar los cursos filtrados -->
+    
+    <h2><strong>Últimos Cursos</strong></h2>
+    {% for course in courses_preview %}
+        <div class="col-lg-4">
+            <a href="{% url 'details' course.id %}">
+                {% if course.image %}
+                    <img class="thumbnail" src="{{ course.image.url }}">
+                {% else %}
+                    <img class="thumbnail" src="/products/placeholder.png">
+                {% endif %}
+            </a>
+            <div class="box-element product">
+                <h6><strong>{{ course.name }}</strong></h6>
+                <h8><strong>Ciudad:</strong> {{ course.city }}</h8>
+                <h8><strong>Tipo:</strong> {{ course.course_type }}</h8>
+                <h8><strong>Disponibilidad:</strong> {{ course.is_available|yesno:"Disponible,No disponible" }}</h8>
+                <hr>
+                <a href="{% url 'details' course.id %}">
+                    <button class="btn btn-outline-secondary add-btn">Ver curso</button>
+                </a>
+                {% if customer.admin == True %}
+                    <a href="#">
+                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Editar curso</button>
+                    </a>
+                    <a href="#">
+                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Borrar curso</button>
+                    </a>
+                {% endif %}
+
+                <h4 style="display: inline-block; float: right;"><strong>
+                    {{ course.price|floatformat:2 }} €
+                </strong></h4>
+            </div>
+        </div>
+    {% endfor %}
+</div>
+{% endblock content %}

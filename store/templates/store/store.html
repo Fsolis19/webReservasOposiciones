@@ -3,12 +3,12 @@
 {% block content %}
 <div class="row">
     {% if customer.admin == True %}
-    <a href="#">
+    <a href="{% url 'createCourse' %}">
         <button class="btn btn-outline-secondary btn-sm add-btn" style="float: right; padding: 10px 20px; font-size: 20px;">Crear curso</button>
     </a>
     {% endif %}
     <div class="col-lg-12">
-        <form action="/" method="get" class="p-3 bg-light rounded shadow">
+        <form action="{% url 'store' %}" method="get" class="p-3 bg-light rounded shadow">
             <h5 class="text-center mb-4">Filtrar Cursos</h5>
     
             <!-- Filtros en una sola fila -->
@@ -51,8 +51,8 @@
                     <select id="city" name="city" class="form-select">
                         <option value="">--Seleccionar ciudad--</option>
                         {% for city_item in city_list %}
-                            <option value="{{ city_item.city }}" {% if city_item.city == city %}selected{% endif %}>
-                                {{ city_item.city }}
+                            <option value="{{ city_item }}" {% if city_item == city %}selected{% endif %}>
+                                {{ city_item }}
                             </option>
                         {% endfor %}
                     </select>

@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import *
-from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm, CustumerUpdateForm
+from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm, CustumerUpdateForm, CourseForm
 from django.contrib.auth import login, logout
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -30,6 +30,7 @@ def store(request):
     price_max = request.GET.get('price_max', '')
     course_type_id = request.GET.get('course_type', '')
     city = request.GET.get('city', '')
+    sort_order = request.GET.get('sort_order', None)
 
     filters = {}
     filters_applied = ""
@@ -56,14 +57,24 @@ def store(request):
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
+        customer = None
         items = []
         order = {'get_cart_total': 0, 'get_cart_items': 0}
         cartItems = order['get_cart_items']
 
+    # Aplicar los filtros de ordenación
     courses = Course.objects.filter(name__icontains=query, **filters)
 
+    if sort_order == 'name':
+        courses = courses.order_by('name')
+    elif sort_order == 'price':
+        courses = courses.order_by('price')
+    elif sort_order == 'city':
+        courses = courses.order_by('city')
+    city_list = Course.objects.values_list('city', flat=True).distinct()
     context = {
-        'courses': courses, 
+        'courses': courses,
+        'customer': customer, 
         'query': query, 
         'course_types': course_types, 
         'city_list': city_list, 
@@ -73,8 +84,19 @@ def store(request):
         'price_max': price_max,
         'filters_applied': filters_applied,
         'cartItems': cart['cartItems'],
+        'sort_order': sort_order,  # Pasa el valor de la opción seleccionada
     }
     return render(request, 'store/store.html', context)
+
+
+def showcase(request):
+    courses_preview = Course.objects.order_by('-id')[:5]
+
+    context = {
+        'courses_preview': courses_preview,
+    }
+
+    return render(request, 'store/preview.html', context)
 
 
 def cart(request):
@@ -518,3 +540,24 @@ def add_to_cart(request, course_id):
             return JsonResponse({"success": "Curso añadido al carrito"}, status=200)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+
+@login_required
+def create_course(request):
+    customer = Customer.objects.get(user=request.user)
+    if customer.admin != True:
+        return redirect('store')
+    else:
+        if request.method == 'POST':
+            form = CourseForm(request.POST, request.FILES)  # Maneja también los archivos subidos (imagen)
+            if form.is_valid():
+                form.save()
+                return redirect('store')  # Redirige a la página principal o donde desees
+            else:
+                form.add_error(None, form.errors)
+                context = {'form': form}
+                return render(request, 'store/create_course.html', context)
+        else:
+            form = CourseForm()
+            context = {'form': form}
+            return render(request, 'store/create_course.html', context)
