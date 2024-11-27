@@ -6,12 +6,13 @@ urlpatterns = [
     path('cart/', views.cart, name='cart'),
     path('checkout/', views.checkout, name='checkout'),
     path('about/', views.about, name='about'),
-    path('product/<int:producto_id>/', views.productDetails, name='details'),
+    #path('product/<int:producto_id>/', views.productDetails, name='details'),
+    path('course/<int:course_id>/', views.courseDetails, name='details'),
     path('login/', views.auth_login, name='login'),
     path('register/', views.register, name='register'),
     path('logout/', views.auth_logout, name='logout'),
     path('customer/<int:customer_id>/', views.profile, name='profile'),
-    path('customer/update/delivery/', views.create_update_delivery, name='create_update_delivery'),
+    path('customer/update/profile/', views.create_update_profile, name='create_update_profile'),
     path('customerlist/', views.customer_list, name='customer_list'),
     path('customercreate/', views.customer_create, name='customer_create'),
     path('customerupdate/<int:customer_id>/', views.customer_update, name='customer_update'),
@@ -23,5 +24,6 @@ urlpatterns = [
     path('review/<str:product_id>/', views.review_order, name='review_order'),
     path('orders/', views.view_orders, name='view_orders'),
     path('order/<int:product_id>/<int:order_id>/claim/', views.claim_product, name='claim_product'),
+    path('add-to-cart/<int:course_id>/', views.add_to_cart, name='add_to_cart'),
 ]
 

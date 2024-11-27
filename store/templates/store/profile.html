@@ -5,21 +5,10 @@
   <h2>Perfil de {{ customer.name }}</h2>
   <ul>
     <li>Email: {{ customer.email }}</li>
+    <li>Dirección: {{ customer.adress }}</li>
+    <li>Teléfono: {{ customer.phone }}</li>
   </ul>
-
-  {% if user.customer.shippingaddress_set.exists %}
-    <h3>Datos de entrega:</h3>
-    <ul>
-      <li>Dirección: {{ user.customer.shippingaddress_set.last.address }}</li>
-      <li>Ciudad: {{ user.customer.shippingaddress_set.last.city }}</li>
-      <li>Estado: {{ user.customer.shippingaddress_set.last.state }}</li>
-      <li>Código postal: {{ user.customer.shippingaddress_set.last.zipcode }}</li>
-      <li>País: {{ user.customer.shippingaddress_set.last.country }}</li>
-    </ul>
-    <a href="{% url 'create_update_delivery' %}" class="btn btn-outline-secondary add-btn">Modificar datos de entrega</a>
-  {% else %}
-    <a href="{% url 'create_update_delivery' %}" class="btn btn-outline-secondary add-btn">Establecer datos de entrega</a>
-  {% endif %}
+  <a href="{% url 'create_update_profile' %}" class="btn btn-outline-secondary add-btn">Modificar datos del perfil</a>
   <br>
   <br>
 {% endblock content %}

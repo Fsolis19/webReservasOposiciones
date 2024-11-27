@@ -2,72 +2,136 @@
 {% load static %}
 {% block content %}
 <div class="row">
-    <div class="col-lg-3">
-        <form action="/" method="get">
-            <input type="hidden" name="q" value="{{ query }}">
-            <input type="hidden" name="color" value="{{ color }}">
-            <input type="hidden" name="talla" value="{{ talla }}">
-            <div id="marca">
-                <p>Marca:</p>
-                {% for brand in brands %}
-                    <input type="checkbox" id="{{ brand.name }}" name="marca" value="{{ brand.id }}" onchange="this.form.submit()">
-                    <label for="{{ brand.name }}">{{ brand.name }}</label><br>
-                {% endfor %}
+    {% if customer.admin == True %}
+    <a href="#">
+        <button class="btn btn-outline-secondary btn-sm add-btn" style="float: right; padding: 10px 20px; font-size: 20px;">Crear curso</button>
+    </a>
+    {% endif %}
+    <div class="col-lg-12">
+        <form action="/" method="get" class="p-3 bg-light rounded shadow">
+            <h5 class="text-center mb-4">Filtrar Cursos</h5>
+    
+            <!-- Filtros en una sola fila -->
+            <div class="row g-3 align-items-center">
+    
+                <!-- Buscar curso -->
+                <div class="col-md-3">
+                    <label for="q" class="form-label">Buscar curso</label>
+                    <input type="text" id="q" name="q" class="form-control" placeholder="Buscar curso" value="{{ query }}">
+                </div>
+    
+                <!-- Precio mínimo -->
+                <div class="col-md-2">
+                    <label for="price_min" class="form-label">Precio mínimo (€)</label>
+                    <input type="number" id="price_min" name="price_min" class="form-control" value="{{ price_min }}" min="0">
+                </div>
+    
+                <!-- Precio máximo -->
+                <div class="col-md-2">
+                    <label for="price_max" class="form-label">Precio máximo (€)</label>
+                    <input type="number" id="price_max" name="price_max" class="form-control" value="{{ price_max }}" min="0">
+                </div>
+    
+                <!-- Tipo de curso -->
+                <div class="col-md-3">
+                    <label for="course_type" class="form-label">Tipo de curso</label>
+                    <select id="course_type" name="course_type" class="form-select">
+                        <option value="">--Seleccionar tipo--</option>
+                        {% for course_type in course_types %}
+                            <option value="{{ course_type.id }}" {% if course_type.id|stringformat:"d" == course_type_id %}selected{% endif %}>
+                                {{ course_type.name }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+    
+                <!-- Ciudad -->
+                <div class="col-md-2">
+                    <label for="city" class="form-label">Ciudad</label>
+                    <select id="city" name="city" class="form-select">
+                        <option value="">--Seleccionar ciudad--</option>
+                        {% for city_item in city_list %}
+                            <option value="{{ city_item.city }}" {% if city_item.city == city %}selected{% endif %}>
+                                {{ city_item.city }}
+                            </option>
+                        {% endfor %}
+                    </select>
+                </div>
+            </div>
+            <!-- Filtros de ordenación -->
+<div class="row g-3 align-items-center">
+    <!-- Ordenar por nombre (A-Z) -->
+    <div class="col-md-4">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sort_order" id="sort_name" value="name" {% if sort_order == 'name' %}checked{% endif %}>
+            <label class="form-check-label" for="sort_name">
+                Ordenar por nombre (A-Z)
+            </label>
+        </div>
+    </div>
+
+    <!-- Ordenar por precio (de menor a mayor) -->
+    <div class="col-md-4">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sort_order" id="sort_price" value="price" {% if sort_order == 'price' %}checked{% endif %}>
+            <label class="form-check-label" for="sort_price">
+                Ordenar por precio (Menor a mayor)
+            </label>
+        </div>
+    </div>
+
+    <!-- Ordenar por ciudad (A-Z) -->
+    <div class="col-md-4">
+        <div class="form-check">
+            <input class="form-check-input" type="radio" name="sort_order" id="sort_city" value="city" {% if sort_order == 'city' %}checked{% endif %}>
+            <label class="form-check-label" for="sort_city">
+                Ordenar por ciudad (A-Z)
+            </label>
+        </div>
+    </div>
+</div>
+
+
+    
+            <!-- Botón de filtro -->
+            <div class="text-center mt-3">
+                <button type="submit" class="btn btn-primary px-5">Filtrar</button>
             </div>
         </form>
     </div>
-    <div class="col-lg-9">
-        {% if query %}
-            <h2>Tu búsqueda de: "{{ query }}"</h2>
-        {% else %}
-            <h2>Todos los productos:</h2>
-        {% endif %}
-        <form action="/" method="get">
-            <input type="hidden" name="q" value="{{ query }}">
-            <input type="hidden" name="marca" value="{{ marca }}">
-            <select id="color" name="color">
-                <option value="">Color</option>
-                {% for color in colors %}
-                    <option value="{{ color.id }}">{{ color.name }}</option>
-                {% endfor %}
-            </select>
-            <select id="talla" name="talla">
-                <option value="">Talla</option>
-                {% for size in sizes %}
-                    <option value="{{ size.id }}">{{ size.name }}</option>
-                {% endfor %}
-            </select>
-            <input type="submit" value="Aplicar filtros" class="filter-submit">
-            {% if filters_applied %}
-                <a href="/" class="btn btn-danger">Borrar filtros</a>
-            {% endif %}
-        </form>
-        <p>{{ filters_applied }}</p>
-        {% if products|length == 0 %}
-            <p>No se encontraron productos.</p>
-        {% elif products|length > 1 %}
-            <p>[{{ products|length }} resultados]</p>
-        {% else %}
-            <p>[{{ products|length }} resultado]</p>
-        {% endif %}
-    </div>
-    {% for product in products %}
+    
+    
+
+    <!-- Mostrar los cursos filtrados -->
+    {% for course in courses %}
         <div class="col-lg-4">
-            <a href="{% url 'details' product.id %}">
-                {% if product.image %}
-                    <img class="thumbnail" src="{{ product.image.url }}">
+            <a href="{% url 'details' course.id %}">
+                {% if course.image %}
+                    <img class="thumbnail" src="{{ course.image.url }}">
                 {% else %}
                     <img class="thumbnail" src="/products/placeholder.png">
                 {% endif %}
             </a>
             <div class="box-element product">
-                <h6><strong>{{product.name}}</strong></h6>
+                <h6><strong>{{ course.name }}</strong></h6>
+                <h8><strong>Ciudad:</strong> {{ course.city }}</h8>
+                <h8><strong>Tipo:</strong> {{ course.course_type }}</h8>
+                <h8><strong>Disponibilidad:</strong> {{ course.is_available|yesno:"Disponible,No disponible" }}</h8>
                 <hr>
-                <a href="{% url 'details' product.id %}">
-                    <button class="btn btn-outline-secondary add-btn">Ver producto</button>
+                <a href="{% url 'details' course.id %}">
+                    <button class="btn btn-outline-secondary add-btn">Ver curso</button>
                 </a>
+                {% if customer.admin == True %}
+                    <a href="#">
+                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Editar curso</button>
+                    </a>
+                    <a href="#">
+                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Borrar curso</button>
+                    </a>
+                {% endif %}
+
                 <h4 style="display: inline-block; float: right;"><strong>
-                    {{product.price|floatformat:2}} €
+                    {{ course.price|floatformat:2 }} €
                 </strong></h4>
             </div>
         </div>

@@ -1,10 +1,9 @@
-
 from django.shortcuts import get_object_or_404, render, redirect
 
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import *
-from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm
+from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm, CustumerUpdateForm
 from django.contrib.auth import login, logout
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -20,66 +19,63 @@ from django.views.decorators.csrf import csrf_exempt
 from .utils import cookieCart, cartData
 from django.db.models import Avg
 
-
 def store(request):
     query = request.GET.get('q', '')
 
-    colors = Color.objects.all()
-    sizes = Size.objects.all()
-    brands = Brand.objects.all()
+    course_types = CourseType.objects.all()  # Para los filtros de tipo de curso
+    city_list = Course.objects.values('city').distinct()  # Obtener lista de ciudades disponibles
 
-    color_id = request.GET.get('color', '')
-    size_id = request.GET.get('talla', '')
-    brand_id = request.GET.get('marca', '')
+    # Obtener filtros de la URL
+    price_min = request.GET.get('price_min', '')
+    price_max = request.GET.get('price_max', '')
+    course_type_id = request.GET.get('course_type', '')
+    city = request.GET.get('city', '')
 
     filters = {}
     filters_applied = ""
 
-    if not color_id and not size_id and 'marca' in request.session and not brand_id:
-        del request.session['marca']
-    if color_id:
-        color = colors.get(id=color_id)
-        filters['productcolor__color__id'] = color_id
-        filters_applied += f"Color: {color.name}. "
-    if size_id:
-        size = sizes.get(id=size_id)
-        filters['productsize__size__id'] = size_id
-        filters_applied += f"Talla: {size.name}. "
-    if 'marca' in request.session and not brand_id:
-        brand_id = request.session['marca']
-    elif brand_id:
-        request.session['marca'] = brand_id
-    if brand_id:
-        brand = brands.get(id=brand_id)
-        filters['brand__id'] = brand_id
-        filters_applied += f"Marca: {brand.name}. "
-    
+    if price_min:
+        filters['price__gte'] = price_min
+        filters_applied += f"Precio mínimo: {price_min}. "
+    if price_max:
+        filters['price__lte'] = price_max
+        filters_applied += f"Precio máximo: {price_max}. "
+    if course_type_id:
+        course_type = course_types.get(id=course_type_id)
+        filters['course_type__id'] = course_type_id
+        filters_applied += f"Tipo de curso: {course_type.name}. "
+    if city:
+        filters['city__icontains'] = city
+        filters_applied += f"Ciudad: {city}. "
+
     cart = cartData(request)
 
     if request.user.is_authenticated:
         customer = request.user.customer
-        order, created = Order.objects.get_or_create(customer = customer, status=Status.objects.get(name='No realizado'))
+        order, created = Order.objects.get_or_create(customer=customer, status=Status.objects.get(name='No realizado'))
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
         items = []
         order = {'get_cart_total': 0, 'get_cart_items': 0}
         cartItems = order['get_cart_items']
-    products = Product.objects.filter(name__icontains=query, **filters)
+
+    courses = Course.objects.filter(name__icontains=query, **filters)
 
     context = {
-        'products': products, 
+        'courses': courses, 
         'query': query, 
-        'colors': colors, 
-        'sizes': sizes, 
-        'brands': brands, 
-        'color_id': color_id, 
-        'size_id': size_id, 
-        'brand_id': brand_id,
+        'course_types': course_types, 
+        'city_list': city_list, 
+        'course_type_id': course_type_id, 
+        'city': city,
+        'price_min': price_min,
+        'price_max': price_max,
         'filters_applied': filters_applied,
         'cartItems': cart['cartItems'],
     }
     return render(request, 'store/store.html', context)
+
 
 def cart(request):
     cart = cartData(request)
@@ -108,6 +104,33 @@ def about(request):
     context = {'cartItems': cart['cartItems']}
     return render(request, 'store/about.html', context)
 
+from django.shortcuts import get_object_or_404, render
+
+def courseDetails(request, course_id):
+    # Obtener datos del carrito
+    cart = cartData(request)
+
+    # Obtener el curso específico o devolver un 404 si no existe
+    course = get_object_or_404(Course, pk=course_id)
+
+    # Calcular la duración del curso en días
+    duration = (course.end_date - course.start_date).days
+
+    # Comprobar si el curso está disponible
+    is_available = course.is_available
+
+    return render(
+        request, 
+        'store/course.html', 
+        {
+            'course': course,
+            'cartItems': cart['cartItems'], 
+            'duration': duration,
+            'is_available': is_available,
+        }
+    )
+
+"""
 def productDetails(request, producto_id):
     cart = cartData(request)
         
@@ -120,6 +143,7 @@ def productDetails(request, producto_id):
     sizes = producto.productsize_set.all().order_by('size__name')
     return render(request, 'store/product.html', {'product': producto, 'colors': colors, 'sizes': sizes, 'cartItems': cart['cartItems'],'average_rating': average_rating, 'ratings': ratings})
 
+"""
 
 def auth_login(request):
     if request.method == 'POST':
@@ -149,7 +173,12 @@ def register(request):
         form = RegisterForm(request.POST)
         if form.is_valid():
             user = form.save()
-            customer, created = Customer.objects.get_or_create(email=user.email, name=form.cleaned_data['name'])
+            customer, created = Customer.objects.get_or_create(
+                email=user.email, 
+                name=form.cleaned_data['name'], 
+                adress=form.cleaned_data['adress'], 
+                phone=form.cleaned_data['phone']
+            )
             customer.user = user
             customer.save()
             login(request, user)
@@ -176,16 +205,15 @@ def profile(request, customer_id):
     return render(request, 'store/profile.html', {'customer': customer, 'shipping_address': shipping_address, 'customer_id': customer_id, 'cartItems': cart['cartItems']})
 
 @login_required
-def create_update_delivery(request):
+def create_update_profile(request):
     cart = cartData(request)
     customer = request.user.customer
     shipping_address = customer.shippingaddress_set.last()
-    form = ShippingAddressForm(request.POST or None, instance=shipping_address)
+    form = CustumerUpdateForm(request.POST or None, instance=customer)
     if request.method == 'POST':
         if form.is_valid():
-            new_shipping_address = form.save(commit=False)
-            new_shipping_address.customer = customer
-            new_shipping_address.save()
+            new_profile = form.save(commit=False)
+            new_profile.save()
             return redirect('store')
     return render(request, 'store/delivery_form.html', {'form': form, 'customer': customer, 'cartItems': cart['cartItems']})
 
@@ -235,50 +263,46 @@ def customer_delete(request, customer_id):
 @csrf_exempt
 def updateItem(request):
     data = json.loads(request.body)
-    productId = data['productId']
-    size_name = data['size']
-    action = data['action']
+    courseId = data['courseId']  # ID del curso
+    action = data['action']  # 'add' o 'remove'
 
+    # Obtener los datos del carrito
     cart = cartData(request)
-    
+
     if request.user.is_authenticated:
-        product_size = ProductSize.objects.get(size=Size.objects.get(name=size_name), product=Product.objects.get(id=productId))
-        if not product_size:
-                return JsonResponse({'error': 'No existe la talla del producto'}, safe=False)
-        order = cart['order']  
-        orderItem, created = OrderItem.objects.get_or_create(order=order, product_size=product_size)
+        try:
+            course = Course.objects.get(id=courseId)
+        except Course.DoesNotExist:
+            return JsonResponse({'error': 'Curso no encontrado'}, safe=False)
+
+        # Obtener el pedido del carrito
+        order = cart['order']
+        
+        # Crear o obtener el item en el pedido
+        orderItem, created = OrderItem.objects.get_or_create(order=order, course=course)
+
         if action == 'add':
             try:
-                quantity = int(data['quantity'])
-            except:
+                quantity = int(data['quantity'])  # Asegúrate de que la cantidad esté bien definida
+            except ValueError:
                 return JsonResponse({'error': 'Cantidad inválida'}, safe=False)
-            if product_size.stock - (quantity + orderItem.quantity) < 0:
-                return JsonResponse({'error': 'Cantidad superior a stock actual: '+ str(product_size.stock)}, safe=False)
-            
-            orderItem.quantity = orderItem.quantity + quantity
+
+            orderItem.quantity += quantity
             orderItem.save()
-            return JsonResponse({"success": "Se ha añadido el producto a la cesta"}, safe=False)
+            return JsonResponse({"success": "Curso añadido al carrito"}, safe=False)
+        
         elif action == 'remove':
-            orderItem.quantity = orderItem.quantity - 1
-            orderItem.save()
-        if orderItem.quantity <= 0:
-            orderItem.delete()
-        return JsonResponse({}, safe=False)
+            if orderItem.quantity > 0:
+                orderItem.quantity -= 1
+                orderItem.save()
+            if orderItem.quantity <= 0:
+                orderItem.delete()
+
+            return JsonResponse({"success": "Curso eliminado del carrito"}, safe=False)
+    
     else:
-        product_size = ProductSize.objects.get(size=Size.objects.get(name=size_name), product=Product.objects.get(id=productId))
-        if not product_size:
-            return JsonResponse({'error': 'No existe la talla del producto'}, safe=False)
-        if action == 'add':
-            try:
-                quantity = int(data['quantity'])
-            except:
-                return JsonResponse({'error': 'Cantidad inválida'}, safe=False)
-            if product_size.stock - quantity < 0:
-                return JsonResponse({'error': 'Cantidad superior a stock actual: '+ str(product_size.stock)}, safe=False)
-            return JsonResponse({"success": "Se ha añadido el producto a la cesta"}, safe=False)
-        
-        return JsonResponse({}, safe=False)
-        
+        return JsonResponse({'error': 'Debes estar autenticado para realizar esta acción'}, safe=False)
+
 
 @transaction.atomic
 def processOrder(request):
@@ -464,3 +488,33 @@ def claim_product(request, product_id,order_id):
 
     context = {'product':product,'order': order,  'cartItems': cart['cartItems'], 'error_message': error_message}
     return render(request, 'store/claim_product.html', context)
+
+#carrito#########################################################################################################################################
+
+@csrf_exempt
+def add_to_cart(request, course_id):
+    # Comprobar si el método de la solicitud es POST
+    if request.method == 'POST':
+        try:
+            # Obtener el curso correspondiente
+            course = Course.objects.get(id=course_id)
+        except Course.DoesNotExist:
+            return JsonResponse({'error': 'Curso no encontrado'}, status=404)
+
+        # Obtener el carrito de la sesión (usando cartData)
+        cart = cartData(request)
+        order = cart['order']  # Obtener el pedido asociado al carrito
+
+        # Crear o obtener el item en el carrito
+        orderItem, created = OrderItem.objects.get_or_create(order=order, course=course)
+
+        # Si el curso no está en el carrito, se agrega
+        if created:
+            return JsonResponse({"success": "Curso añadido al carrito"}, status=200)
+        else:
+            # Si ya estaba en el carrito, solo actualizamos la cantidad si es necesario
+            orderItem.quantity += 1
+            orderItem.save()
+            return JsonResponse({"success": "Curso añadido al carrito"}, status=200)
+    
+    return JsonResponse({'error': 'Método no permitido'}, status=405)
