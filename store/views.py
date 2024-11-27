@@ -23,7 +23,7 @@ def store(request):
     query = request.GET.get('q', '')
 
     course_types = CourseType.objects.all()  # Para los filtros de tipo de curso
-    city_list = Course.objects.values('city').distinct()  # Obtener lista de ciudades disponibles
+    #city_list = Course.objects.values('city').distinct()  # Obtener lista de ciudades disponibles
 
     # Obtener filtros de la URL
     price_min = request.GET.get('price_min', '')
@@ -71,7 +71,9 @@ def store(request):
         courses = courses.order_by('price')
     elif sort_order == 'city':
         courses = courses.order_by('city')
-    city_list = Course.objects.values_list('city', flat=True).distinct()
+    city_list = set(
+        city.strip().lower() for city in Course.objects.values_list('city', flat=True).distinct()
+    )
     context = {
         'courses': courses,
         'customer': customer, 
