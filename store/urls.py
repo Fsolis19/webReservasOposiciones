@@ -25,6 +25,7 @@ urlpatterns = [
     path('review/<str:product_id>/', views.review_order, name='review_order'),
     path('orders/', views.view_orders, name='view_orders'),
     path('order/<int:product_id>/<int:order_id>/claim/', views.claim_product, name='claim_product'),
-    path('create_course/',views.create_course, name='createCourse')
+    path('create_course/',views.create_course, name='createCourse'),
+    path('add-to-cart/<int:course_id>/', views.add_to_cart, name='add_to_cart'),
 ]
 

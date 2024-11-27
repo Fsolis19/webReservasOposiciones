@@ -22,7 +22,45 @@
             <p><strong>Fecha de fin:</strong> {{ course.end_date }}</p>
             <p><strong>Disponibilidad:</strong> {{ is_available|yesno:"Disponible,No disponible" }}</p>
             <div style="flex-direction: column;">
-                <button class="btn btn-outline-success">Reservar curso</button>
+                <!-- Botón de agregar al carrito -->
+                <button class="btn btn-outline-success" id="reservar-btn" data-course-id="{{ course.id }}">Reservar curso</button>
+
+                <script>
+                document.getElementById("reservar-btn").addEventListener("click", function () {
+                    // Obtiene el ID del curso desde el botón
+                    const courseId = this.getAttribute("data-course-id");
+                    const url = `/course/${courseId}/add-to-cart/`;  // URL para agregar el curso al carrito
+
+                    fetch(url, { 
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "X-CSRFToken": getCSRFToken(),  // Token CSRF para proteger la solicitud
+                        },
+                        body: JSON.stringify({})  // Cuerpo de la solicitud, puedes agregar más datos si es necesario
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            alert("¡Reserva realizada con éxito!");
+                        } else if (data.error) {
+                            alert(data.error);
+                        }
+                    })
+                    .catch(error => {
+                        console.error("Error:", error);
+                        alert("Hubo un error al realizar la reserva.");
+                    });
+                });
+
+                // Función para obtener el token CSRF del documento (si estás usando protección CSRF)
+                function getCSRFToken() {
+                    const csrfToken = document.querySelector('[name=csrfmiddlewaretoken]').value;
+                    return csrfToken;
+                }
+                </script>
+                <!-- Botón de agregar al carrito -->
+
             </div>
         </div>
     </div>

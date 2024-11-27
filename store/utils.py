@@ -1,7 +1,7 @@
 import json
 from . models import *
 
-
+#He modificado course por product
 def cookieCart(request):
 
     try:
@@ -15,17 +15,17 @@ def cookieCart(request):
     for i in cart:
         try:
             cartItems += int(cart[i]['quantity'])
-            product = Product.objects.get(id=cart[i]['productId'])
-            total = (product.price * int(cart[i]['quantity']))
+            course = Course.objects.get(id=cart[i]['courseId'])
+            total = (course.price * int(cart[i]['quantity']))
             order['get_cart_total'] += total
             order['get_cart_items'] += int(cart[i]['quantity'])
 
             item  = {}
             item['product_size'] = {}
-            item['product_size']['product'] = product
+            item['product_size']['product'] = course
             item['product_size']['size'] = Size.objects.get(name=cart[i]['size'])
             item['quantity'] = int(cart[i]['quantity'])
-            item['get_total'] = item['quantity'] * product.price
+            item['get_total'] = item['quantity'] * course.price
             items.append(item)
         except:
             pass
