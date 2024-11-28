@@ -643,3 +643,24 @@ def delete_customer(request, customer_id):
 
     context = {'customers': customerDelete}
     return render(request, 'store/delete_customer.html', context)
+
+
+from django.shortcuts import render, redirect
+from django.contrib.auth.decorators import login_required
+from .models import CourseReservation
+from django.contrib import messages
+
+@login_required
+def list_reservations(request):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+
+    reservations = CourseReservation.objects.all()
+
+    context = {
+        'reservations': reservations
+    }
+
+    return render(request, 'store/list_reservations.html', context)
+

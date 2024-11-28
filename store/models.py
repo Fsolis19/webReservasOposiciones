@@ -240,11 +240,17 @@ class Course(models.Model):
 
 
 class CourseReservation(models.Model):
+    PAYMENT_CHOICES = [
+        ('COD', 'Contrarreembolso'),  # COD = Cash on Delivery (Contrarreembolso)
+        ('PP', 'PayPal'),            # PP = PayPal
+        ('CC', 'Tarjeta'),           # CC = Tarjeta de Crédito
+    ]
     course = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
     customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
     reservation_date = models.DateTimeField(auto_now_add=True)
     reserved_on = models.DateTimeField()
     is_confirmed = models.BooleanField(default=False)
+    payment_method = models.CharField(max_length=3, choices=PAYMENT_CHOICES, default='COD')
 
     def __str__(self):
         return f'Reservation {self.id} for {self.course.name} by {self.customer.name}'

@@ -1,0 +1,34 @@
+{% extends 'store/main.html' %}
+
+{% block content %}
+<h2>Lista de Reservas</h2>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Curso</th>
+            <th>Cliente</th>
+            <th>Fecha de Reserva</th>
+            <th>Fecha Reservada</th>
+            <th>Método de Pago</th>
+            <th>Confirmada</th>
+        </tr>
+    </thead>
+    <tbody>
+        {% for reservation in reservations %}
+        <tr>
+            <td>{{ reservation.id }}</td>
+            <td>{{ reservation.course.name }}</td>
+            <td>{{ reservation.customer.name }}</td>
+            <td>{{ reservation.reservation_date }}</td>
+            <td>{{ reservation.reserved_on }}</td>
+            <td>{{ reservation.get_payment_method_display }}</td>
+            <td>{% if reservation.is_confirmed %}Sí{% else %}No{% endif %}</td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
+
+<a href="{% url 'store' %}" class="btn btn-secondary">Volver</a>
+{% endblock %}

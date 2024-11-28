@@ -51,6 +51,8 @@
               {% if customer.admin == True %}
               <!-- Botón para acceder a clientes -->
               <a href="{% url 'list_customers' %}" class="btn btn-dark ms-2">Clientes</a>
+              <!-- Botón para acceder a reservas -->
+              <a href="{% url 'list_reservations' %}" class="btn btn-dark ms-2">Reservas</a>
               {% endif %}
               <!-- Icono carrito -->
               <a href="{% url 'cart' %}">
