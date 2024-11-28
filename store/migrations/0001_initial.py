@@ -17,7 +17,7 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='SneakerUser',
+            name='OppositionUser',
             fields=[
                 ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
                 ('password', models.CharField(max_length=128, verbose_name='password')),
@@ -37,21 +37,7 @@ class Migration(migrations.Migration):
                 'ordering': ['-date_joined'],
             },
             managers=[
-                ('objects', store.models.SneakerUserManager()),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Brand',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=30, unique=True)),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Color',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=20, unique=True)),
+                ('objects', store.models.OppositionUserManager()),
             ],
         ),
         migrations.CreateModel(
@@ -71,25 +57,6 @@ class Migration(migrations.Migration):
                 ('tracking_id', models.CharField(max_length=200, null=True, unique=True)),
                 ('fast_delivery', models.BooleanField(default=False, null=True)),
                 ('customer', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.customer')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Product',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.CharField(max_length=200)),
-                ('price', models.DecimalField(decimal_places=2, max_digits=7, validators=[django.core.validators.MinValueValidator(0)])),
-                ('image', models.ImageField(blank=True, null=True, upload_to='')),
-                ('description', models.CharField(max_length=200, null=True)),
-                ('details', models.CharField(max_length=500, null=True)),
-                ('brand', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.brand')),
-            ],
-        ),
-        migrations.CreateModel(
-            name='Size',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('name', models.FloatField(unique=True)),
             ],
         ),
         migrations.CreateModel(
@@ -129,35 +96,8 @@ class Migration(migrations.Migration):
                 ('rating', models.IntegerField(choices=[(1, 1), (2, 2), (3, 3), (4, 4), (5, 5)])),
                 ('comment', models.TextField()),
                 ('customer', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.customer')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.product')),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.course')),
             ],
-        ),
-        migrations.CreateModel(
-            name='ProductSize',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('stock', models.IntegerField(default=0, validators=[django.core.validators.MinValueValidator(0)])),
-                ('product', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.product')),
-                ('size', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.size')),
-            ],
-            options={
-                'verbose_name': 'Product size',
-                'verbose_name_plural': 'Product sizes',
-                'ordering': ['product', 'size'],
-            },
-        ),
-        migrations.CreateModel(
-            name='ProductColor',
-            fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('color', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.color')),
-                ('product', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.product')),
-            ],
-            options={
-                'verbose_name': 'Product color',
-                'verbose_name_plural': 'Product colors',
-                'ordering': ['product', 'color'],
-            },
         ),
         migrations.CreateModel(
             name='OrderItem',
@@ -166,7 +106,7 @@ class Migration(migrations.Migration):
                 ('quantity', models.IntegerField(blank=True, default=0, null=True, validators=[django.core.validators.MinValueValidator(0)])),
                 ('date_added', models.DateTimeField(auto_now_add=True)),
                 ('order', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.order')),
-                ('product_size', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.productsize')),
+                ('course', models.ForeignKey(null=True, on_delete=django.db.models.deletion.SET_NULL, to='store.course')),
             ],
         ),
         migrations.AddField(
@@ -187,10 +127,10 @@ class Migration(migrations.Migration):
                 ('date_submitted', models.DateTimeField(auto_now_add=True)),
                 ('customer', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.customer')),
                 ('order', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.order')),
-                ('product', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.product')),
+                ('course', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to='store.course')),
             ],
             options={
-                'unique_together': {('product', 'order')},
+                'unique_together': {('course', 'order')},
             },
         ),
     ]

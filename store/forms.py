@@ -94,6 +94,30 @@ class ShippingAddressForm(forms.ModelForm):
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
 
+class CourseForm(forms.ModelForm):
+    class Meta:
+        model = Course
+        fields = [
+            'name', 'image', 'price', 'details', 
+            'city', 'course_type', 'is_available', 
+            'start_date', 'end_date'
+        ]
+        labels = {
+            'name': 'Nombre',
+            'image': 'Imagen',
+            'price': 'Precio',
+            'details': 'Detalles',
+            'city': 'Ciudad',
+            'course_type': 'Tipo del curso',
+            'is_available': 'Disponibilidad',
+            'start_date': 'Fecha de comienzo',
+            'end_date': 'Fecha final',
+        }
+        widgets = {
+            'start_date': forms.DateInput(attrs={'type': 'date'}),
+            'end_date': forms.DateInput(attrs={'type': 'date'}),
+        }
+
 
 class CourseForm(forms.ModelForm):
     class Meta:
