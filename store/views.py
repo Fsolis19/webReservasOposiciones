@@ -664,3 +664,26 @@ def list_reservations(request):
 
     return render(request, 'store/list_reservations.html', context)
 
+
+
+@login_required
+def confirmar_reserva(request, reservation_id):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+
+    reservation = get_object_or_404(CourseReservation, id=reservation_id)
+
+    if request.method == 'POST':
+        reservation.is_confirmed = not reservation.is_confirmed
+        reservation.save()
+        
+        if reservation.is_confirmed:
+            messages.success(request, f'La reserva para {reservation.course.name} ha sido confirmada.')
+        else:
+            messages.success(request, f'La reserva para {reservation.course.name} ha sido revocada.')
+
+        return redirect('list_reservations')
+
+    return redirect('list_reservations')
+

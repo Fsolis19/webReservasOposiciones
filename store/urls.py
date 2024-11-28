@@ -32,5 +32,6 @@ urlpatterns = [
     path('list_customers/', views.list_customers, name='list_customers'),
     path('delete_customers/<int:customer_id>/', views.delete_customer, name='delete_customer'),
     path('reservations/', views.list_reservations, name='list_reservations'),
+    path('confirmar_reserva/<int:reservation_id>/', views.confirmar_reserva, name='confirmar_reserva'),
 ]
 

@@ -3,6 +3,14 @@
 {% block content %}
 <h2>Lista de Reservas</h2>
 
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
 <table class="table">
     <thead>
         <tr>
@@ -13,6 +21,7 @@
             <th>Fecha Reservada</th>
             <th>Método de Pago</th>
             <th>Confirmada</th>
+            <th>Acciones</th>  <!-- Nueva columna para las acciones -->
         </tr>
     </thead>
     <tbody>
@@ -25,6 +34,14 @@
             <td>{{ reservation.reserved_on }}</td>
             <td>{{ reservation.get_payment_method_display }}</td>
             <td>{% if reservation.is_confirmed %}Sí{% else %}No{% endif %}</td>
+            <td>
+                <form method="post" action="{% url 'confirmar_reserva' reservation.id %}" style="display:inline;">
+                    {% csrf_token %}
+                    <button type="submit" class="btn btn-warning btn-sm">
+                        {% if reservation.is_confirmed %}No confirmar{% else %}Confirmar{% endif %}
+                    </button>
+                </form>
+            </td>
         </tr>
         {% endfor %}
     </tbody>
@@ -32,3 +49,4 @@
 
 <a href="{% url 'store' %}" class="btn btn-secondary">Volver</a>
 {% endblock %}
+

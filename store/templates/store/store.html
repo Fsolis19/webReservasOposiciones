@@ -3,6 +3,13 @@
 {% block content %}
 <div class="row">
     {% if customer.admin == True %}
+    {% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+    {% endif %}
     <a href="{% url 'createCourse' %}">
         <button class="btn btn-outline-secondary btn-sm add-btn" style="float: right; padding: 10px 20px; font-size: 20px;">Crear curso</button>
     </a>
