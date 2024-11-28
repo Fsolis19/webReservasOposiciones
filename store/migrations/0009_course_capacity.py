@@ -7,7 +7,7 @@ from django.db import migrations, models
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0007_customer_admin'),
+        ('store', '0008_coursereservation_payment_method'),
     ]
 
     operations = [
