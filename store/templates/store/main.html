@@ -48,6 +48,10 @@
               <form class="d-flex" action="/" method="get" role="search">
                 <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q">
               </form>
+              {% if customer.admin == True %}
+              <!-- Botón para acceder a clientes -->
+              <a href="{% url 'list_customers' %}" class="btn btn-dark ms-2">Clientes</a>
+              {% endif %}
               <!-- Icono carrito -->
               <a href="{% url 'cart' %}">
                   <img id="cart-icon" src="{% static 'images/cart.png' %}">

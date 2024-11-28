@@ -611,3 +611,35 @@ def delete_course(request, course_id):
     context = {'course': course}
     return render(request, 'store/delete_course.html', context)
 
+
+@login_required
+def list_customers(request):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+
+    customers = Customer.objects.exclude(user=request.user)
+
+    context = {'customers': customers}
+    return render(request, 'store/list_customers.html', context)
+
+
+@login_required
+def delete_customer(request, customer_id):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+
+    try:
+        customerDelete = Customer.objects.get(id=customer_id)
+    except Customer.DoesNotExist:
+        messages.error(request, 'El cliente no existe.')
+        return redirect('list_customers')
+
+    if request.method == 'POST':
+        customerDelete.delete()
+        messages.success(request, f'El cliente "{customerDelete.name}" fue eliminado exitosamente.')
+        return redirect('list_customers')
+
+    context = {'customers': customerDelete}
+    return render(request, 'store/delete_customer.html', context)
