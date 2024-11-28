@@ -3,7 +3,7 @@ from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.urls import reverse
 from .models import *
-from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm, CustumerUpdateForm
+from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm, CustumerUpdateForm, CourseForm
 from django.contrib.auth import login, logout
 from django.contrib.auth import authenticate
 from django.contrib.auth.decorators import login_required, user_passes_test
@@ -76,6 +76,15 @@ def store(request):
     }
     return render(request, 'store/store.html', context)
 
+def showcase(request):
+    courses_preview = Course.objects.order_by('-id')[:5]
+
+    context = {
+        'courses_preview': courses_preview,
+    }
+
+    return render(request, 'store/preview.html', context)
+
 
 def cart(request):
     cart = cartData(request)
@@ -129,6 +138,26 @@ def courseDetails(request, course_id):
             'is_available': is_available,
         }
     )
+
+@login_required
+def create_course(request):
+    customer = Customer.objects.get(user=request.user)
+    if customer.admin != True:
+        return redirect('store')
+    else:
+        if request.method == 'POST':
+            form = CourseForm(request.POST, request.FILES)  # Maneja también los archivos subidos (imagen)
+            if form.is_valid():
+                form.save()
+                return redirect('store')  # Redirige a la página principal o donde desees
+            else:
+                form.add_error(None, form.errors)
+                context = {'form': form}
+                return render(request, 'store/create_course.html', context)
+        else:
+            form = CourseForm()
+            context = {'form': form}
+            return render(request, 'store/create_course.html', context)
 
 """
 def productDetails(request, producto_id):
