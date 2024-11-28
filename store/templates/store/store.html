@@ -122,10 +122,10 @@
                     <button class="btn btn-outline-secondary add-btn">Ver curso</button>
                 </a>
                 {% if customer.admin == True %}
-                    <a href="#">
+                    <a href="{% url 'edit_course' course.id %}">
                         <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Editar curso</button>
                     </a>
-                    <a href="#">
+                    <a href="{% url 'delete_course' course.id %}">
                         <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Borrar curso</button>
                     </a>
                 {% endif %}

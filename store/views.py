@@ -563,3 +563,51 @@ def create_course(request):
             form = CourseForm()
             context = {'form': form}
             return render(request, 'store/create_course.html', context)
+        
+
+@login_required
+def edit_course(request, course_id):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+    
+    try:
+        course = Course.objects.get(id=course_id)
+    except Course.DoesNotExist:
+        return redirect('store')
+
+    if request.method == 'POST':
+        form = CourseForm(request.POST, request.FILES, instance=course)
+        if form.is_valid():
+            form.save()
+            return redirect('store')
+        else:
+            form.add_error(None, form.errors) 
+            context = {'form': form, 'course': course}
+            return render(request, 'store/edit_course.html', context)
+    else:
+        form = CourseForm(instance=course)
+        context = {'form': form, 'course': course}
+        return render(request, 'store/edit_course.html', context)
+    
+
+@login_required
+def delete_course(request, course_id):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+
+    try:
+        course = Course.objects.get(id=course_id)
+    except Course.DoesNotExist:
+        messages.error(request, 'El curso no existe.')
+        return redirect('store')
+
+    if request.method == 'POST':
+        course.delete()
+        messages.success(request, f'El curso "{course.name}" fue eliminado exitosamente.')
+        return redirect('store')
+
+    context = {'course': course}
+    return render(request, 'store/delete_course.html', context)
+
