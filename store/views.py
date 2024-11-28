@@ -260,49 +260,47 @@ def customer_delete(request, customer_id):
     customer.delete()
     return redirect('customer_list')
 
+
 @csrf_exempt
 def updateItem(request):
     data = json.loads(request.body)
-    courseId = data['courseId']  # ID del curso
-    action = data['action']  # 'add' o 'remove'
+    action = data['action']
+    courseId = data['courseId']
 
-    # Obtener los datos del carrito
     cart = cartData(request)
-
+    course = Course.objects.get(id=courseId)
+    
     if request.user.is_authenticated:
-        try:
-            course = Course.objects.get(id=courseId)
-        except Course.DoesNotExist:
-            return JsonResponse({'error': 'Curso no encontrado'}, safe=False)
-
-        # Obtener el pedido del carrito
-        order = cart['order']
-        
-        # Crear o obtener el item en el pedido
+        order = cart['order']  
         orderItem, created = OrderItem.objects.get_or_create(order=order, course=course)
-
         if action == 'add':
             try:
-                quantity = int(data['quantity'])  # Asegúrate de que la cantidad esté bien definida
-            except ValueError:
+                quantity = int(data['quantity'])
+            except:
                 return JsonResponse({'error': 'Cantidad inválida'}, safe=False)
-
-            orderItem.quantity += quantity
+            if course.capacity - (quantity + orderItem.quantity) < 0:
+                return JsonResponse({'error': 'Cantidad superior a stock actual: '+ str(course.capacity)}, safe=False)
+            
+            orderItem.quantity = orderItem.quantity + quantity
             orderItem.save()
-            return JsonResponse({"success": "Curso añadido al carrito"}, safe=False)
-        
+            return JsonResponse({"success": "Se ha añadido el producto a la cesta"}, safe=False)
         elif action == 'remove':
-            if orderItem.quantity > 0:
-                orderItem.quantity -= 1
-                orderItem.save()
-            if orderItem.quantity <= 0:
-                orderItem.delete()
-
-            return JsonResponse({"success": "Curso eliminado del carrito"}, safe=False)
-    
+            orderItem.quantity = orderItem.quantity - 1
+            orderItem.save()
+        if orderItem.quantity <= 0:
+            orderItem.delete()
+        return JsonResponse({}, safe=False)
     else:
-        return JsonResponse({'error': 'Debes estar autenticado para realizar esta acción'}, safe=False)
-
+        if action == 'add':
+            try:
+                quantity = int(data['quantity'])
+            except:
+                return JsonResponse({'error': 'Cantidad inválida'}, safe=False)
+            if course.capacity - quantity < 0:
+                return JsonResponse({'error': 'Cantidad superior a stock actual: '+ str(course.capacity)}, safe=False)
+            return JsonResponse({"success": "Se ha añadido el producto a la cesta"}, safe=False)
+        
+        return JsonResponse({}, safe=False)
 
 @transaction.atomic
 def processOrder(request):
@@ -518,3 +516,18 @@ def add_to_cart(request, course_id):
             return JsonResponse({"success": "Curso añadido al carrito"}, status=200)
     
     return JsonResponse({'error': 'Método no permitido'}, status=405)
+
+def add_course_to_cart(request, course_id):
+    # Obtener el carrito del usuario (puedes personalizar esta lógica)
+    cart, created = cart.objects.get_or_create(user=request.user, completed=False)
+
+    # Obtener el curso
+    course = get_object_or_404(Course, id=course_id)
+
+    # Verificar si ya está en el carrito
+    cart_item, created = CartItem.objects.get_or_create(cart=cart, course=course)
+    if not created:
+        cart_item.quantity += 1  # Incrementar la cantidad
+    cart_item.save()
+
+    return JsonResponse({'message': 'Curso añadido al carrito'}, status=200)

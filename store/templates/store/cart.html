@@ -18,13 +18,13 @@
                 </tr>
             </table>
 		</div>
-
+        
 		<br>
+        {% if items %}
 		<div class="box-element">
             <div class="cart-row">
                 <div style="flex:2"></div>
                 <div style="flex:2"><strong>Producto</strong></div>
-                <div style="flex:1"><strong>Talla</strong></div>
                 <div style="flex:1"><strong>Precio</strong></div>
                 <div style="flex:1"><strong>Cantidad</strong></div>
                 <div style="flex:1"><strong>Total</strong></div>
@@ -34,25 +34,24 @@
             <div class="cart-row">
                 
                 <div style="flex:2">
-                    {% if item.product_size.product.image %}
-                    <img class="row-image" src="{{ item.product_size.product.image.url }}">
+                    {% if item.course.image %}
+                    <img class="row-image" src="{{ item.course.image.url }}">
                     {% else %}
                     <img class="row-image" src="{% static  'images/placeholder.png' %}">
                     {% endif %}
                 </div>
                 
-                <div style="flex:2"><p>{{ item.product_size.product.name }}</p></div>
-                <div style="flex:1"><p>{{item.product_size.size.name}}</p></div>
-                <div style="flex:1"><p>{{item.product_size.product.price|floatformat:2}}€</p></div>
+                <div style="flex:2"><p>{{ item.course.name }}</p></div>
+                <div style="flex:1"><p>{{item.course.price|floatformat:2}}€</p></div>
                 <div style="flex:1">
                     <p class="quantity">{{item.quantity}}</p>
                     <div class="quantity">
                         
-                        <img data-product="{{item.product_size.product.id}}" data-size="{{item.product_size.size.name}}" 
+                        <img data-product="{{item.course.id}}" 
                         class="chg-quantity update-cart"  
                         data-action="add" data-quantity="1" src="{% static  'images/arrow-up.png' %}">
                 
-                        <img data-product="{{item.product_size.product.id}}" data-size="{{item.product_size.size.name}}" data-action="remove" 
+                        <img data-product="{{item.course.id}}" data-action="remove" 
                         class="chg-quantity update-cart" src="{% static  'images/arrow-down.png' %}">
                     </div>
                 </div>
@@ -60,6 +59,7 @@
             </div>
             {% endfor %}
 		</div>
+        {% endif %}
 	</div>
 </div>
 <script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
