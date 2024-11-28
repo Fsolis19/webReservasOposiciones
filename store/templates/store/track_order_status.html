@@ -32,29 +32,29 @@
             <div class="col-md-6">
                 <div class="card mb-4">
                     <div class="card-body">
-                        <h5 class="card-title">Productos en el Pedido</h5>
+                        <h5 class="card-title">Cursos en el Pedido</h5>
                         <ul class="list-group">
                             {% for item in order_items %}
                                 <li class="list-group-item">
                                     <div class="row">
                                         <div class="col-md-3">
-                                            {% if item.product_size.product.image %}
-                                                <img src="{{ item.product_size.product.image.url }}" alt="{{ item.product_size.product.name }}" class="img-fluid">
+                                            {% if item.course.image %}
+                                                <img src="{{ item.course.image.url }}" alt="{{ item.course.name }}" class="img-fluid">
                                             {% else %}
                                                 <img src="{% static 'images/placeholder.png' %}" alt="Placeholder" class="img-fluid">
                                             {% endif %}
                                         </div>
                                         <div class="col-md-9">
-                                                <p><strong>{{ item.product_size.product.name }}</strong> | {{item.product_size.size.name}}</p>
-                                                <p>Cantidad: {{ item.quantity }} x {{ item.product_size.product.price|floatformat:2 }}€</p> 
+                                                <p><strong>{{ item.course.name }}</strong> | {{item.course.name}}</p>
+                                                <p>Cantidad: {{ item.quantity }} x {{ item.course.price|floatformat:2 }}€</p> 
                                         </div>
-                                        {% if order.status.name == 'Entregado' and item.product_size.product.id not in user_ratings %}
-                                            <a href="{% url 'review_order' product_id=item.product_size.product_id %}" class="btn btn-secondary">Opinar</a>
+                                        {% if order.status.name == 'Entregado' and item.course.id not in user_ratings %}
+                                            <a href="{% url 'review_order' course_id=item.course_id %}" class="btn btn-secondary">Opinar</a>
                                         {% elif order.status.name == 'Entregado' %}
                                             <button class="btn btn-secondary" disabled>Ya has opinado sobre el producto</button>
                                         {% endif %}
-                                        {% if item.product_size.product.id not in claimed_products %}
-                                            <a href="{% url 'claim_product' product_id=item.product_size.product_id order_id=order.id %}" class="btn btn-danger">Reclamar Pedido</a>
+                                        {% if item.course.id not in claimed_courses %}
+                                            <a href="{% url 'claim_course' course_id=item.course_id order_id=order.id %}" class="btn btn-danger">Reclamar Pedido</a>
                                         {% else %}
                                             <button class="btn btn-danger" disabled>Producto ya reclamado</button>
                                         {% endif %}

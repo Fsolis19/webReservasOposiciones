@@ -3,11 +3,11 @@ var updateBtns = document.getElementsByClassName('update-cart')
 for (var i = 0; i < updateBtns.length; i++) {
     updateBtns[i].addEventListener('click', function () {
         // Capturar valores desde los atributos data-*
-        
+        print(this.dataset)
         var courseId = this.dataset.course;
         var action = this.dataset.action;
         var quantity = this.dataset.quantity
-
+        
         if (user == 'AnonymousUser') {
             addCookieItem(courseId, action, quantity);
         } else {
@@ -33,6 +33,7 @@ function addCookieItem(courseId, action, quantity){
             }
         }
     if (action == 'add'){
+        console.log(id)
         if (id) {
             updateUserOrder(courseId, action, parseInt(quantity) + parseInt(cart[id].quantity))
             .then((data) => {
@@ -49,6 +50,7 @@ function addCookieItem(courseId, action, quantity){
             })
             
         } else {
+            console.log("aqui")
             updateUserOrder(courseId, action, quantity)
             .then((data) => {
                 if (data.error) {

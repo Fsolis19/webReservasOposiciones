@@ -17,7 +17,7 @@ COPY . .
 
 EXPOSE 8000
 
-ARG email=superuser@sneakerus.com
+ARG email=superuser@oppositionus.com
 ENV DJANGO_SUPERUSER_EMAIL=${email}
 
 ARG password=superuser

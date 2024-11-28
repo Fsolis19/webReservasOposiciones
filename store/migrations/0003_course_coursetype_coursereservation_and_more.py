@@ -8,8 +8,9 @@ import django.db.models.deletion
 class Migration(migrations.Migration):
 
     dependencies = [
-        ('store', '0002_alter_brand_name'),
+        ('store', '0001_initial'),
     ]
+
 
     operations = [
         migrations.CreateModel(

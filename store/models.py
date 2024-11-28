@@ -7,7 +7,7 @@ from django.core.validators import MinValueValidator, MaxValueValidator
 
 # Create your models here.
 
-class SneakerUserManager(UserManager):
+class OppositionUserManager(UserManager):
     def _create_user(self, email, password, **extra_fields):
         if not email:
             raise ValueError("El email es obligatorio")
@@ -29,7 +29,7 @@ class SneakerUserManager(UserManager):
         extra_fields.setdefault("is_admin", True)
         return self._create_user(email, password, **extra_fields)
     
-class SneakerUser(AbstractBaseUser, PermissionsMixin):
+class OppositionUser(AbstractBaseUser, PermissionsMixin):
     email = models.EmailField(verbose_name='email', max_length=60, unique=True)
     date_joined = models.DateTimeField(verbose_name='date joined', auto_now_add=True)
     last_login = models.DateTimeField(verbose_name='last login', auto_now=True)
@@ -40,7 +40,7 @@ class SneakerUser(AbstractBaseUser, PermissionsMixin):
 
     USERNAME_FIELD = 'email' 
     REQUIRED_FIELDS = [] 
-    objects = SneakerUserManager()
+    objects = OppositionUserManager()
 
     def __str__(self):
         return self.email
@@ -59,7 +59,7 @@ class SneakerUser(AbstractBaseUser, PermissionsMixin):
     
 
 class Customer(models.Model):
-    user = models.OneToOneField(SneakerUser, null=True, blank=True, on_delete = models.CASCADE)
+    user = models.OneToOneField(OppositionUser, null=True, blank=True, on_delete = models.CASCADE)
     name = models.CharField(max_length=200 , null=False, blank=False)
     email = models.EmailField(max_length=200 , null=True, blank=False)
     #NUEVOS CAMPOS PARA FORMULARIO
@@ -70,63 +70,6 @@ class Customer(models.Model):
     def __str__(self):
         return self.name
 
-class Brand(models.Model):
-    name = models.CharField(max_length=50 , null=False, unique=True, blank=False)
-    
-    def __str__(self):
-        return self.name
-   
-class Color(models.Model):
-    name = models.CharField(max_length=20, null=False, unique=True, blank=False)
-
-    def __str__(self):
-        return self.name
-
-class Size(models.Model):
-    name = models.FloatField(null=False, unique=True)
-
-    def __str__(self):
-        return str(self.name)
-
-
-class ProductColor(models.Model):
-    product = models.ForeignKey('Product', null=True, on_delete = models.SET_NULL)
-    color = models.ForeignKey('Color', null=True, on_delete = models.SET_NULL)
-    
-    def __str__(self):
-        return str(self.product) + ' ' + str(self.color)
-
-    class Meta:
-        verbose_name = 'Product color'
-        verbose_name_plural = 'Product colors'
-        ordering = ['product', 'color']
-
-class ProductSize(models.Model):
-    product = models.ForeignKey('Product', null=True, on_delete = models.SET_NULL)
-    size = models.ForeignKey('Size', null=True, on_delete = models.SET_NULL)
-    stock = models.IntegerField(default=0, null=False, blank=False, validators=[MinValueValidator(0)])
-    
-    def __str__(self):
-        return str(self.product) + ' ' + str(self.size)
-
-    class Meta:
-        verbose_name = 'Product size'
-        verbose_name_plural = 'Product sizes'
-        ordering = ['product', 'size']
-
-class Product(models.Model):
-    name = models.CharField(max_length=200 , null=False, blank=False)
-    price = models.DecimalField(max_digits=7, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0)])
-    brand = models.ForeignKey(Brand, null=True, on_delete = models.SET_NULL)
-    image = models.ImageField(null=True, blank=True)
-    description = models.CharField(max_length=200 , null=True)
-    details = models.CharField(max_length=500 , null=True)
-    
-
-    
-    def __str__(self):
-        return self.name
-    
 
 class CourseType(models.Model):
     name = models.CharField(max_length=50, unique=True, null=False, blank=False)
@@ -236,20 +179,20 @@ class OrderItem(models.Model):
         return self.course.price * self.quantity
 
 class Rating(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
     rating = models.IntegerField(choices=[(i, i) for i in range(1, 6)])
     comment = models.TextField()
 
 class Claim(models.Model):
-    product = models.ForeignKey(Product, on_delete=models.CASCADE)
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
     order = models.ForeignKey(Order, on_delete=models.CASCADE)
     customer = models.ForeignKey(Customer, on_delete=models.CASCADE)
     description = models.TextField()
     date_submitted = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('product', 'order')
+        unique_together = ('course', 'order')
 
     def __str__(self):
         return f'Claim {self.id} by {self.customer.email}'

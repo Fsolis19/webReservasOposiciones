@@ -1,6 +1,6 @@
 from django.shortcuts import get_object_or_404, render, redirect
-
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import get_object_or_404, render
 from django.urls import reverse
 from .models import *
 from .forms import LoginForm, RegisterForm, CustomerForm, ShippingAddressForm, CustumerUpdateForm, CourseForm
@@ -113,8 +113,6 @@ def about(request):
     context = {'cartItems': cart['cartItems']}
     return render(request, 'store/about.html', context)
 
-from django.shortcuts import get_object_or_404, render
-
 def courseDetails(request, course_id):
     # Obtener datos del carrito
     cart = cartData(request)
@@ -158,21 +156,6 @@ def create_course(request):
             form = CourseForm()
             context = {'form': form}
             return render(request, 'store/create_course.html', context)
-
-"""
-def productDetails(request, producto_id):
-    cart = cartData(request)
-        
-    producto = get_object_or_404(Product, pk=producto_id)
-    colors = producto.productcolor_set.all()
-    average_rating = Rating.objects.filter(product=producto).aggregate(Avg('rating'))['rating__avg']
-    ratings = Rating.objects.filter(product=producto)
-
-    # sizes ordered by name
-    sizes = producto.productsize_set.all().order_by('size__name')
-    return render(request, 'store/product.html', {'product': producto, 'colors': colors, 'sizes': sizes, 'cartItems': cart['cartItems'],'average_rating': average_rating, 'ratings': ratings})
-
-"""
 
 def auth_login(request):
     if request.method == 'POST':
@@ -348,8 +331,8 @@ def processOrder(request):
         order = Order.objects.create(customer=customer, status=Status.objects.get(name='No realizado'))
         items = cart['items']
         for item in items:
-            product_size = ProductSize.objects.get(size=Size.objects.get(name=item['product_size']['size'].name), product=Product.objects.get(id=item['product_size']['product'].id))
-            orderItem = OrderItem.objects.create(order=order, product_size=product_size, quantity=item['quantity'])
+            course = Course.objects.get(name=item['course'].name)
+            orderItem = OrderItem.objects.create(order=order, course=course, quantity=item['quantity'])
             orderItem.save()
 
     order.date_ordered = datetime.datetime.now()
@@ -367,34 +350,33 @@ def processOrder(request):
     # check all products in cart are available
     order_items = order.orderitem_set.all()
     for order_item in order_items:
-        if order_item.product_size.stock - order_item.quantity < 0:
-            return JsonResponse({'error': 'No hay suficiente stock del producto: ' + str(order_item.product_size.product.name) + ', talla: ' + str(order_item.product_size.size.name)}, safe=False)
+        if order_item.course.capacity - order_item.quantity < 0:
+            return JsonResponse({'error': 'No hay suficiente espacio en el curso: ' + str(order_item.course.name)}, safe=False)
 
     # reduce stock of products in cart
     for order_item in order_items:
-        order_item.product_size.stock = order_item.product_size.stock - order_item.quantity
+        order_item.course.capacity = order_item.course.capacity - order_item.quantity
         try:
-            order_item.product_size.save()
+            order_item.course.save()
         except:
-            return JsonResponse({'error': 'No hay suficiente stock del producto: ' + str(order_item.product_size.product.name) + ', talla: ' + str(order_item.product_size.size.name)}, safe=False)
+            return JsonResponse({'error': 'No hay suficiente espacio en el curso: ' + str(order_item.course.name)}, safe=False)
 
     shipping_address.save()
     order.shipping_address = shipping_address
     order.save()
 
     order_items = order.orderitem_set.all()
-    product_info_list = []
+    course_info_list = []
 
     for order_item in order_items:
-        product_name = order_item.product_size.product.name
-        product_size = order_item.product_size.size.name
+        course_name = order_item.course.name
         quantity = order_item.quantity
-        price = order_item.product_size.product.price 
+        price = order_item.course.price 
 
-        product_info = f"Producto: {product_name}, Talla: {product_size}, Cantidad: {quantity}, Precio: {price}"
-        product_info_list.append(product_info)
+        course_info = f"Producto: {course_name}, Cantidad: {quantity}, Precio: {price}"
+        course_info_list.append(course_info)
 
-    full_product_info = "\n".join(product_info_list)
+    full_course_info = "\n".join(course_info_list)
     if request.user.is_authenticated:
         user = request.user
         customer = user.customer
@@ -405,23 +387,23 @@ def processOrder(request):
         customer_name = body['form']['name']
         customer_email = body['form']['email']
 
-    enviar_correo(customer_email, customer_name, full_product_info, order.tracking_id, order.date_ordered)
+    enviar_correo(customer_email, customer_name, full_course_info, order.tracking_id, order.date_ordered)
 
     return JsonResponse({'tracking': tracking_id}, safe=False)
 
 def enviar_correo(email_destino, username, resume_order, id_pedido, fecha):
-    asunto = ' ¡Gracias por tu compra en SneakerUS!'
+    asunto = ' ¡Gracias por tu compra en OppositionUS!'
     mensaje = f'Estimado/a {username},' '\n' \
-              f'En nombre de todo el equipo de SneakerUS, queremos expresar nuestro más sincero agradecimiento por tu reciente compra en nuestra tienda en línea.' '\n' '\n' \
-              f'Nos emociona saber que has elegido SneakerUS para adquirir tus zapatillas, y estamos comprometidos a brindarte la mejor experiencia de compra posible. Valoramos tu confianza en nuestros productos y servicios.' '\n' '\n' \
+              f'En nombre de todo el equipo de OppositionUS, queremos expresar nuestro más sincero agradecimiento por tu reciente compra en nuestra tienda en línea.' '\n' '\n' \
+              f'Nos emociona saber que has elegido OppositionUS para adquirir tus clase de oposiciones, y estamos comprometidos a brindarte la mejor experiencia posible. Valoramos tu confianza en nuestros servicios.' '\n' '\n' \
               f'Detalles de tu pedido:' '\n' \
               f'Número de seguimiento: {id_pedido}\n' \
               f'Fecha de compra: {fecha}\n' \
               f'Resumen de su pedido: {resume_order}\n' '\n'\
               f'Si tienes alguna pregunta sobre tu pedido o necesitas asistencia adicional, no dudes en ponerte en contacto con nuestro equipo de atención al cliente. Estamos aquí para ayudarte en cualquier momento.\n' \
-              f'Esperamos que disfrutes al máximo tus nuevas zapatillas. ¡Gracias por formar parte de la comunidad de SneakerUS!'
+              f'Esperamos que disfrutes al máximo tus nuevas clases. ¡Gracias por formar parte de la comunidad de OppositionUS!'
 
-    remitente = 'sneakerUS@outlook.es'
+    remitente = 'oppositionUS@outlook.es'
     destinatarios = [email_destino]
 
     send_mail(asunto, mensaje, remitente, destinatarios)
@@ -445,16 +427,16 @@ def track_order(request, tracking_id):
     try:
         order = get_object_or_404(Order, tracking_id=tracking_id)
         order_items = OrderItem.objects.filter(order=order)
-        order_products = [item.product_size.product.id for item in order_items]
-        claimed_products = Claim.objects.filter(order=order).values_list('product_id', flat=True)
+        order_courses = [item.course.id for item in order_items]
+        claimed_courses = Claim.objects.filter(order=order).values_list('course_id', flat=True)
         if request.user.is_authenticated:
-            user_ratings = Rating.objects.filter(customer=request.user.customer , product_id__in=order_products).values_list('product_id', flat=True)
+            user_ratings = Rating.objects.filter(customer=request.user.customer , course_id__in=order_courses).values_list('course_id', flat=True)
         else:
-            user_ratings = Rating.objects.filter(customer=order.customer , product_id__in=order_products).values_list('product_id', flat=True)
+            user_ratings = Rating.objects.filter(customer=order.customer , course_id__in=order_courses).values_list('course_id', flat=True)
 
         total_cost = order.get_cart_total
 
-        context = {'order': order, 'order_items': order_items, 'total_cost': total_cost, 'cartItems': cart['cartItems'],'user_ratings': user_ratings, 'claimed_products': claimed_products}
+        context = {'order': order, 'order_items': order_items, 'total_cost': total_cost, 'cartItems': cart['cartItems'],'user_ratings': user_ratings, 'claimed_courses': claimed_courses}
     except Order.DoesNotExist:
         return render(request, 'store/track_order.html', {'error_message': f'No existe un pedido con ID de seguimiento {tracking_id}.'})
 
@@ -469,9 +451,9 @@ def view_orders(request):
     return render(request, 'store/view_orders.html', context)
 
 @login_required
-def review_order(request, product_id):
+def review_order(request, course_id):
     cart = cartData(request)
-    product = get_object_or_404(Product, id=product_id)
+    course = get_object_or_404(Course, id=course_id)
     error_message = None
     if request.method == 'POST':
         rating_value = request.POST.get('rating')
@@ -480,7 +462,7 @@ def review_order(request, product_id):
             error_message = 'Debes proporcionar una valoración.'
         else:
             rating = Rating.objects.create(
-                product=product,
+                course=course,
                 customer=request.user.customer,
                 rating=rating_value,
                 comment=comment
@@ -489,13 +471,13 @@ def review_order(request, product_id):
             messages.success(request, 'Tu valoración ha sido enviada.')
             return redirect('view_orders')
 
-    context = {'product':product, 'cartItems': cart['cartItems'],'error_message': error_message}
+    context = {'course':course, 'cartItems': cart['cartItems'],'error_message': error_message}
     return render(request, 'store/review_order.html', context)
 
 
-def claim_product(request, product_id,order_id):
+def claim_product(request, course_id,order_id):
     cart = cartData(request)
-    product = get_object_or_404(Product, id=product_id)
+    course = get_object_or_404(Course, id=course_id)
     order = get_object_or_404(Order, id=order_id)
     error_message = None
     if request.method == 'POST':
@@ -505,7 +487,7 @@ def claim_product(request, product_id,order_id):
         else:
             claim = Claim.objects.create(
                 order=order,
-                product=product,
+                course=course,
                 customer=order.customer,
                 description=description
             )
@@ -513,7 +495,7 @@ def claim_product(request, product_id,order_id):
             messages.success(request, 'Tu reclamación ha sido enviada.')
             return HttpResponseRedirect("/tracking/" + order.tracking_id)
 
-    context = {'product':product,'order': order,  'cartItems': cart['cartItems'], 'error_message': error_message}
+    context = {'course':course,'order': order,  'cartItems': cart['cartItems'], 'error_message': error_message}
     return render(request, 'store/claim_product.html', context)
 
 #carrito#########################################################################################################################################

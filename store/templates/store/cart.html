@@ -34,24 +34,24 @@
             <div class="cart-row">
                 
                 <div style="flex:2">
-                    {% if item.course.image %}
-                    <img class="row-image" src="{{ item.course.image.url }}">
+                    {% if item.img %}
+                    <img class="row-image" src="{{ item.img }}">
                     {% else %}
                     <img class="row-image" src="{% static  'images/placeholder.png' %}">
                     {% endif %}
                 </div>
                 
-                <div style="flex:2"><p>{{ item.course.name }}</p></div>
-                <div style="flex:1"><p>{{item.course.price|floatformat:2}}€</p></div>
+                <div style="flex:2"><p>{{ item.name }}</p></div>
+                <div style="flex:1"><p>{{item.price|floatformat:2}}€</p></div>
                 <div style="flex:1">
                     <p class="quantity">{{item.quantity}}</p>
                     <div class="quantity">
                         
-                        <img data-product="{{item.course.id}}" 
+                        <img data-course="{{item.id}}" 
                         class="chg-quantity update-cart"  
                         data-action="add" data-quantity="1" src="{% static  'images/arrow-up.png' %}">
                 
-                        <img data-product="{{item.course.id}}" data-action="remove" 
+                        <img data-course="{{item.id}}" data-action="remove" 
                         class="chg-quantity update-cart" src="{% static  'images/arrow-down.png' %}">
                     </div>
                 </div>

@@ -122,14 +122,13 @@
                <hr>
                {% for item in items %}
                <div class="cart-row">
-                    {% if not item.product_size.product.image %}
+                    {% if not item.img %}
                     <div style="flex:2"><img class="row-image" src="{% static 'images/placeholder.png' %}"></div>
                     {% else %}
-                    <div style="flex:2"><img class="row-image" src="{{ item.product_size.product.image.url }}"></div>
+                    <div style="flex:2"><img class="row-image" src="{{ item.img }}"></div>
                     {% endif %}
-                    <div style="flex:2"><b>{{item.product_size.product.name}}</b></div>
-                    <div style="flex:2"><p>{{item.product_size.size.name}}</p></div>
-                    <div style="flex:1"><p>{{item.product_size.product.price}}€</p></div>
+                    <div style="flex:2"><b>{{item.name}}</b></div>
+                    <div style="flex:1"><p>{{item.price}}€</p></div>
                     <div style="flex:1"><p>x{{item.quantity}}</p></div>
                </div>
                {% endfor %}

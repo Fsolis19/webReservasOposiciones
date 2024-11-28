@@ -2,8 +2,8 @@
 {% load static %}
 {% block content %}
     <div class="container mt-5">
-        <h2 class="mb-4">Valorar {{ product.name }}</h2>
-        <img src="{{ product.image.url }}" alt="{{ product.name }}"style="max-width: 400px; height: auto;"> 
+        <h2 class="mb-4">Valorar {{ course.name }}</h2>
+        <img src="{{ course.image.url }}" alt="{{ course.name }}"style="max-width: 400px; height: auto;"> 
         <form method="POST" action="">
             {% if error_message %}
         <div class="alert alert-danger" role="alert">

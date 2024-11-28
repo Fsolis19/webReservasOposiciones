@@ -21,9 +21,10 @@ def cookieCart(request):
             order['get_cart_items'] += int(cart[i]['quantity'])
 
             item  = {}
-            item['product_size'] = {}
-            item['product_size']['product'] = course
-            item['product_size']['size'] = Size.objects.get(name=cart[i]['size'])
+            item['name'] = course.name
+            item['img'] = course.image.url
+            item['price'] = course.price
+            item['id'] = course.id
             item['quantity'] = int(cart[i]['quantity'])
             item['get_total'] = item['quantity'] * course.price
             items.append(item)
