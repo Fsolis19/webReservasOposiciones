@@ -323,9 +323,9 @@ def updateItem(request):
         elif action == 'remove':
             orderItem.quantity = orderItem.quantity - 1
             orderItem.save()
-        if orderItem.quantity <= 0:
-            orderItem.delete()
-        return JsonResponse({}, safe=False)
+            if orderItem.quantity <= 0:
+                orderItem.delete()
+            return JsonResponse({}, safe=False)
     else:
         if action == 'add':
             try:
@@ -335,7 +335,6 @@ def updateItem(request):
             if course.capacity - quantity < 0:
                 return JsonResponse({'error': 'Cantidad superior a stock actual: '+ str(course.capacity)}, safe=False)
             return JsonResponse({"success": "Se ha añadido el producto a la cesta"}, safe=False)
-        
         return JsonResponse({}, safe=False)
 
 @transaction.atomic

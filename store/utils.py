@@ -21,6 +21,7 @@ def cookieCart(request):
             order['get_cart_items'] += int(cart[i]['quantity'])
 
             item  = {}
+            print(course)
             item['name'] = course.name
             item['img'] = course.image.url
             item['price'] = course.price
