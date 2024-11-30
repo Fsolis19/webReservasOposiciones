@@ -123,7 +123,13 @@
                 <h6><strong>{{ course.name }}</strong></h6>
                 <h8><strong>Ciudad:</strong> {{ course.city }}</h8>
                 <h8><strong>Tipo:</strong> {{ course.course_type }}</h8>
-                <h8><strong>Disponibilidad:</strong> {{ course.is_available|yesno:"Disponible,No disponible" }}</h8>
+                <h8><strong>Disponibilidad:</strong> 
+                    {% if course.is_available %}
+                        {{ course.is_available|yesno:"Disponible,No disponible" }}
+                    {% else %}
+                        <span class="text-danger font-weight-bold">No disponible</span>
+                    {% endif %}
+                </h8>
                 <hr>
                 <a href="{% url 'details' course.id %}">
                     <button class="btn btn-outline-secondary add-btn">Ver curso</button>

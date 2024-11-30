@@ -302,6 +302,11 @@ footer a:hover {
     clip:rect(0,0,0,0);
 }
 
+.no-disponible {
+    color: red;
+    font-weight: bold; /* Puedes agregar esta propiedad si quieres que el texto también se vea más destacado */
+}
+
 .rating:not(:checked) > label {
     float:right;
     width:1em;
