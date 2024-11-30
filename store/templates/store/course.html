@@ -18,6 +18,7 @@
             <p><strong>Precio:</strong> {{ course.price|floatformat:2 }} €</p>
             <p><strong>Detalles:</strong> {{ course.details }}</p>
             <p><strong>Duración:</strong> {{ duration }} días</p>
+            <p><strong>Capacidad:</strong> {{ course.capacity }} alumnos</p>
             <p><strong>Fecha de inicio:</strong> {{ course.start_date }}</p>
             <p><strong>Fecha de fin:</strong> {{ course.end_date }}</p>
             <p><strong>Disponibilidad:</strong> {{ is_available|yesno:"Disponible,No disponible" }}</p>

@@ -99,7 +99,7 @@ class CourseForm(forms.ModelForm):
         model = Course
         fields = [
             'name', 'image', 'price', 'details', 
-            'city', 'course_type', 'is_available', 
+            'city', 'course_type', 'is_available', 'capacity',
             'start_date', 'end_date'
         ]
         labels = {
@@ -110,6 +110,7 @@ class CourseForm(forms.ModelForm):
             'city': 'Ciudad',
             'course_type': 'Tipo del curso',
             'is_available': 'Disponibilidad',
+            'capacity': 'Capacidad',
             'start_date': 'Fecha de comienzo',
             'end_date': 'Fecha final',
         }
@@ -124,7 +125,7 @@ class CourseForm(forms.ModelForm):
         model = Course
         fields = [
             'name', 'image', 'price', 'details', 
-            'city', 'course_type', 'is_available', 
+            'city', 'course_type', 'is_available', 'capacity',
             'start_date', 'end_date'
         ]
         labels = {
@@ -135,6 +136,7 @@ class CourseForm(forms.ModelForm):
             'city': 'Ciudad',
             'course_type': 'Tipo del curso',
             'is_available': 'Disponibilidad',
+            'capacity': 'Capacidad',
             'start_date': 'Fecha de comienzo',
             'end_date': 'Fecha final',
         }
