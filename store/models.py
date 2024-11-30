@@ -90,7 +90,7 @@ class Course(models.Model):
     details = models.CharField(max_length=200, null=True, blank=True)
     city = models.CharField(max_length=200, null=False, blank=False)
     course_type = models.ForeignKey(CourseType, null=True, on_delete=models.SET_NULL)
-    capacity = models.DecimalField(max_digits=7, decimal_places=2, null=False, blank=False, validators=[MinValueValidator(0)])
+    capacity = models.IntegerField(null=False, blank=False, validators=[MinValueValidator(0)])
     is_available = models.BooleanField(default=True)
     start_date = models.DateField(null=False, blank=False)  
     end_date = models.DateField(null=False, blank=False)  
