@@ -155,8 +155,9 @@ LOGIN_URL = 'login'
 
 #EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend' # Imprime el correo por consola en vez de enviarse
 EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'  # Cambiado a la dirección del servidor SMTP de Outlook
-EMAIL_PORT = 587  # Puerto típicamente usado por Outlook para TLS
-EMAIL_USE_TLS = True  # Usar TLS para una conexión segura
-EMAIL_HOST_USER = config('EMAIL_HOST_USER')
-EMAIL_HOST_PASSWORD = config('EMAIL_HOST_PASSWORD')
+EMAIL_HOST = 'smtp.gmail.com'
+EMAIL_USE_TLS = True
+EMAIL_USE_SSL = False  
+EMAIL_PORT = 587
+EMAIL_HOST_USER = os.getenv('EMAIL_HOST_USER')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD')

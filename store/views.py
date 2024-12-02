@@ -350,18 +350,17 @@ def processOrder(request):
     if request.user.is_authenticated:
         order = cart['order']
     else:
-        customer, created = Customer.objects.get_or_create(email=body['form']['email'], name=body['form']['name'])
+        customer, created = Customer.objects.get_or_create(email=body['form']['email'], name=body['form']['name'], phone=body['form']['phone'])
         order = Order.objects.create(customer=customer, status=Status.objects.get(name='No realizado'))
         items = cart['items']
         for item in items:
-            course = Course.objects.get(name=item['course'].name)
+            course = Course.objects.get(name=item['name'])
             orderItem = OrderItem.objects.create(order=order, course=course, quantity=item['quantity'])
             orderItem.save()
 
     order.date_ordered = datetime.datetime.now()
     order.status = Status.objects.get(name='Realizado')
     order.tracking_id = tracking_id
-    order.fast_delivery = body['shipping']['fast_delivery']
     shipping_address = ShippingAddress.objects.create()
     shipping_address.customer = None
     shipping_address.address = body['shipping']['address']
@@ -395,7 +394,6 @@ def processOrder(request):
         course_name = order_item.course.name
         quantity = order_item.quantity
         price = order_item.course.price 
-
         course_info = f"Producto: {course_name}, Cantidad: {quantity}, Precio: {price}"
         course_info_list.append(course_info)
 
@@ -426,11 +424,12 @@ def enviar_correo(email_destino, username, resume_order, id_pedido, fecha):
               f'Si tienes alguna pregunta sobre tu pedido o necesitas asistencia adicional, no dudes en ponerte en contacto con nuestro equipo de atención al cliente. Estamos aquí para ayudarte en cualquier momento.\n' \
               f'Esperamos que disfrutes al máximo tus nuevas clases. ¡Gracias por formar parte de la comunidad de OppositionUS!'
 
-    remitente = 'oppositionUS@outlook.es'
+    remitente = 'oppositionusoficial@gmail.com'
     destinatarios = [email_destino]
 
     send_mail(asunto, mensaje, remitente, destinatarios)
     return HttpResponse('Correo enviado exitosamente.')
+
 def track_orders(request):
     cart = cartData(request)
     if request.method == 'POST':

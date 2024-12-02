@@ -62,6 +62,7 @@
               </a>
               <!-- Icono carrito -->
               <p id="cart-total">{{ cartItems }}</p>
+              <a href="{% url 'track_orders' %}" class="btn btn-warning ms-lg-3 rounded-2">Seguimiento del pedio</a>
               {% if not user.is_authenticated %}
                   <a href="{% url 'login' %}"class="btn btn-warning ms-lg-3 rounded-2">Iniciar Sesión</a>
               {% else %}
