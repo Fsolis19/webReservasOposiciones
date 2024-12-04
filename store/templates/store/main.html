@@ -47,8 +47,8 @@
             <div class="collapse navbar-collapse" id="navbarSupportedContent">
               <ul class="navbar-nav me-auto mb-2 mb-lg-0">
               </ul>
-              <form class="d-flex" action="/" method="get" role="search">
-                <input class="form-control me-2" type="search" placeholder="Search" aria-label="Search" name="q">
+              <form class="d-flex" action="/store" method="get" role="search">
+                <input class="form-control me-2" type="search" placeholder="Buscar" aria-label="Search" name="q">
               </form>
               {% if customer.admin == True %}
               <!-- Botón para acceder a clientes -->
@@ -60,8 +60,9 @@
               <a href="{% url 'cart' %}">
                   <img id="cart-icon" src="{% static 'images/cart.png' %}">
               </a>
-              <!-- Icono carrito -->
               <p id="cart-total">{{ cartItems }}</p>
+              <!-- Icono carrito -->
+              <a  style="float:right; margin:5px;" class="btn btn-success rounded-3" href="{% url 'checkout' %}">Finalizar Compra</a>
               <a href="{% url 'track_orders' %}" class="btn btn-warning ms-lg-3 rounded-2">Seguimiento del pedio</a>
               {% if not user.is_authenticated %}
                   <a href="{% url 'login' %}"class="btn btn-warning ms-lg-3 rounded-2">Iniciar Sesión</a>

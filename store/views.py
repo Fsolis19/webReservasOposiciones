@@ -100,16 +100,6 @@ def showcase(request):
     return render(request, 'store/preview.html', context)
 
 
-def showcase(request):
-    courses_preview = Course.objects.order_by('-id')[:5]
-
-    context = {
-        'courses_preview': courses_preview,
-    }
-
-    return render(request, 'store/preview.html', context)
-
-
 def cart(request):
     cart = cartData(request)
 

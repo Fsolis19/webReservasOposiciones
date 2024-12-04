@@ -68,7 +68,6 @@ function addCookieItem(courseId, action, quantity){
             if (cart[id].quantity <= 0){
                 delete cart[id]
             }
-            console.log(cart)
             document.cookie = 'cart=' + JSON.stringify(cart) + ";domain=;path=/"
             window.location.reload()
         }

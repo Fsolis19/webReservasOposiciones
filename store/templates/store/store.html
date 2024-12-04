@@ -141,6 +141,15 @@
                     <a href="{% url 'delete_course' course.id %}">
                         <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Borrar curso</button>
                     </a>
+                {% else %}
+                    {% if course.is_available %}
+                        <div style="flex-direction: column;">
+                            <button data-course="{{ course.id }}" data-action="add" data-quantity="1" class="btn btn-outline-success add-btn update-cart">Añadir al Carrito</button>
+                            <input class="quantity-input" type="number" value="1" min="1" style="width: 50px; margin-top: 10px" data-course="{{ course.id }}">
+                        </div>
+                    {% else %}
+                        <p class="text-muted">Este curso no está disponible en este momento.</p>
+                    {% endif %}
                 {% endif %}
 
                 <h4 style="display: inline-block; float: right;"><strong>
@@ -150,4 +159,27 @@
         </div>
     {% endfor %}
 </div>
+
+<script type="text/javascript" src="{% static 'js/course.js' %}"></script>
+<script type="text/javascript" src="{% static 'js/cart.js' %}"></script>
+<script>
+    document.querySelectorAll('.quantity-input').forEach(input => {
+        input.addEventListener('input', function (e) {
+            const courseId = e.target.dataset.course; // Obtén el ID del curso
+            const addBtn = document.querySelector(`.update-cart[data-course="${courseId}"]`);
+            if (addBtn) {
+                addBtn.dataset.quantity = e.target.value; // Actualiza dinámicamente el atributo data-quantity
+            }
+        });
+    });
+    
+    // Establece el valor inicial para todos los campos de cantidad al cargar la página
+    window.onload = function () {
+        document.querySelectorAll('.quantity-input').forEach(input => {
+            input.value = 1;
+        });
+    };
+    
+</script>
+
 {% endblock content %}
