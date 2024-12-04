@@ -91,10 +91,12 @@ def store(request):
     return render(request, 'store/store.html', context)
 
 def showcase(request):
+    cart = cartData(request)
     courses_preview = Course.objects.order_by('-id')[:5]
 
     context = {
         'courses_preview': courses_preview,
+        'cartItems': cart['cartItems'],
     }
 
     return render(request, 'store/preview.html', context)

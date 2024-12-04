@@ -110,54 +110,65 @@
     
 
     <!-- Mostrar los cursos filtrados -->
-    {% for course in courses %}
-        <div class="col-lg-4">
-            <a href="{% url 'details' course.id %}">
-                {% if course.image %}
-                    <img class="thumbnail" src="{{ course.image.url }}">
-                {% else %}
-                    <img class="thumbnail" src="/products/placeholder.png">
-                {% endif %}
-            </a>
-            <div class="box-element product">
-                <h6><strong>{{ course.name }}</strong></h6>
-                <h8><strong>Ciudad:</strong> {{ course.city }}</h8>
-                <h8><strong>Tipo:</strong> {{ course.course_type }}</h8>
-                <h8><strong>Disponibilidad:</strong> 
-                    {% if course.is_available %}
-                        {{ course.is_available|yesno:"Disponible,No disponible" }}
-                    {% else %}
-                        <span class="text-danger font-weight-bold">No disponible</span>
-                    {% endif %}
-                </h8>
-                <hr>
-                <a href="{% url 'details' course.id %}">
-                    <button class="btn btn-outline-secondary add-btn">Ver curso</button>
-                </a>
-                {% if customer.admin == True %}
-                    <a href="{% url 'edit_course' course.id %}">
-                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Editar curso</button>
-                    </a>
-                    <a href="{% url 'delete_course' course.id %}">
-                        <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Borrar curso</button>
-                    </a>
-                {% else %}
-                    {% if course.is_available %}
-                        <div style="flex-direction: column;">
-                            <button data-course="{{ course.id }}" data-action="add" data-quantity="1" class="btn btn-outline-success add-btn update-cart">Añadir al Carrito</button>
-                            <input class="quantity-input" type="number" value="1" min="1" style="width: 50px; margin-top: 10px" data-course="{{ course.id }}">
-                        </div>
-                    {% else %}
-                        <p class="text-muted">Este curso no está disponible en este momento.</p>
-                    {% endif %}
-                {% endif %}
+    {% regroup courses by course_type as grouped_courses %}
 
-                <h4 style="display: inline-block; float: right;"><strong>
-                    {{ course.price|floatformat:2 }} €
-                </strong></h4>
-            </div>
+{% for group in grouped_courses %}
+    <div class="course-section">
+        <h2 class="section-title">{{ group.grouper }}</h2>
+        <hr>
+        <div class="row">
+            {% for course in group.list %}
+                <div class="col-lg-4">
+                    <a href="{% url 'details' course.id %}">
+                        {% if course.image %}
+                            <img class="thumbnail" src="{{ course.image.url }}">
+                        {% else %}
+                            <img class="thumbnail" src="/products/placeholder.png">
+                        {% endif %}
+                    </a>
+                    <div class="box-element product">
+                        <h6><strong>{{ course.name }}</strong></h6>
+                        <h8><strong>Ciudad:</strong> {{ course.city }}</h8>
+                        <h8><strong>Tipo:</strong> {{ course.course_type }}</h8>
+                        <h8><strong>Disponibilidad:</strong> 
+                            {% if course.is_available %}
+                                {{ course.is_available|yesno:"Disponible,No disponible" }}
+                            {% else %}
+                                <span class="text-danger font-weight-bold">No disponible</span>
+                            {% endif %}
+                        </h8>
+                        <hr>
+                        <a href="{% url 'details' course.id %}">
+                            <button class="btn btn-outline-secondary add-btn">Ver curso</button>
+                        </a>
+                        {% if customer.admin == True %}
+                            <a href="{% url 'edit_course' course.id %}">
+                                <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Editar curso</button>
+                            </a>
+                            <a href="{% url 'delete_course' course.id %}">
+                                <button class="btn btn-outline-secondary btn-sm add-btn" style="padding: 5px 10px; font-size: 12px;">Borrar curso</button>
+                            </a>
+                        {% else %}
+                            {% if course.is_available %}
+                                <div style="flex-direction: column;">
+                                    <button data-course="{{ course.id }}" data-action="add" data-quantity="1" class="btn btn-outline-success add-btn update-cart">Añadir al Carrito</button>
+                                    <input class="quantity-input" type="number" value="1" min="1" style="width: 50px; margin-top: 10px" data-course="{{ course.id }}">
+                                </div>
+                            {% else %}
+                                <p class="text-muted">Este curso no está disponible en este momento.</p>
+                            {% endif %}
+                        {% endif %}
+
+                        <div class="price-section">
+                            <h4><strong>Precio: {{ course.price|floatformat:2 }} €</strong></h4>
+                        </div>
+                    </div>
+                </div>
+            {% endfor %}
         </div>
-    {% endfor %}
+    </div>
+{% endfor %}
+
 </div>
 
 <script type="text/javascript" src="{% static 'js/course.js' %}"></script>
