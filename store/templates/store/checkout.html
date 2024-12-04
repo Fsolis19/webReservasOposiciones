@@ -1,6 +1,15 @@
 {% extends 'store/main.html' %}
 {% load static %}
 {% block content %}
+
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
 <div class="row">
      <div class="col-lg-6">
           <div class="box-element" id="form-wrapper">
@@ -76,7 +85,7 @@
                        
                
                     <tr style="margin-top: 15px;">
-                         <button id="make-payment" class="btn btn-success rounded-2" style="width: 100%; padding: 15px; margin-bottom: 15px; font-size: 20px; ">Contrarembolso</button>
+                         <button id="make-payment" class="btn btn-success rounded-2" style="width: 100%; padding: 15px; margin-bottom: 15px; font-size: 20px; ">Contrareembolso</button>
 
                          <div id="paypal-button-container"></div>
                          <script src="https://www.paypal.com/sdk/js?client-id=AUI4xS4fiO5bfNfeFRoXq7296haQEMhAGdYfmy1jkPsaJepD5T0Jr9P5ECXK0zhrMK3iSUxaMlzGk1ml&currency=EUR"></script>
@@ -103,7 +112,7 @@
                                 // Finalize the transaction
                                 onApprove: function(data, actions) {
                                    return actions.order.capture().then(function(orderData) {
-                                        submitFormData();
+                                        submitFormData(false);
 
                                      });
                                   }
@@ -257,65 +266,14 @@
               document.getElementById("form-button").classList.add("hidden");
               document.getElementById("payment-info").classList.remove("hidden");
           });
-      
-          // Función para manejar el envío de datos al servidor
-          function submitFormData() {
-              var userFormData = {
-                  name: null,
-                  email: null,
-                  phone: null,
-              };
-              var shippingInfo = {
-                  address: form.address.value,
-                  city: form.city.value,
-                  state: form.state.value,
-                  zipcode: form.zipcode.value,
-                  country: form.country.value,
-                  fast_delivery: false, // Lógica eliminada
-              };
-      
-              if (user == "AnonymousUser") {
-                  userFormData.name = form.name.value;
-                  userFormData.email = form.email.value;
-                  userFormData.phone = form.phone.value;
-              }
-      
-              var csrftoken = getCookie("csrftoken");
-              var url = "{% url 'process_order' %}";
-              fetch(url, {
-                  method: "POST",
-                  headers: {
-                      "Content-Type": "application/json",
-                      "X-CSRFToken": csrftoken,
-                  },
-                  body: JSON.stringify({
-                      form: userFormData,
-                      shipping: shippingInfo,
-                  }),
-              })
-                  .then((response) => response.json())
-                  .then((data) => {
-                      if (data.error) {
-                          alert(data.error);
-                      } else {
-                          alert("Pedido realizado con éxito");
-                          var cart = getCookie("cart");
-                          if (cart) {
-                              document.cookie =
-                                  "cart=" + JSON.stringify({}) + ";domain=;path=/";
-                          }
-                          window.location.href = "/tracking/" + data.tracking;
-                      }
-                  });
-          }
       };
       
 
      document.getElementById('make-payment').addEventListener('click', function(e){
-          submitFormData()
+          submitFormData(true)
      })
 
-     function submitFormData() {
+     function submitFormData(contrareembolso) {
           var userFormData = {
                'name':null,
                'email':null,
@@ -343,7 +301,7 @@
                     'Content-Type':'application/json',
                     'X-CSRFToken':csrftoken,
                },
-               body:JSON.stringify({'form':userFormData, 'shipping':shippingInfo}),
+               body:JSON.stringify({'form':userFormData, 'shipping':shippingInfo, 'contrareembolso':contrareembolso}),
           })
           .then((response) => response.json())
           .then((data) => {

@@ -336,6 +336,7 @@ def processOrder(request):
     tracking_id = timestamp + ''.join(random.choices(string.ascii_uppercase + string.digits, k=14))
     while Order.objects.filter(tracking_id=tracking_id).exists():
         tracking_id = timestamp + ''.join(random.choices(string.ascii_uppercase + string.digits, k=14))
+    contrareembolso = body['contrareembolso']
 
     cart = cartData(request)
     
@@ -343,7 +344,10 @@ def processOrder(request):
         order = cart['order']
     else:
         customer, created = Customer.objects.get_or_create(email=body['form']['email'], name=body['form']['name'], phone=body['form']['phone'])
-        order = Order.objects.create(customer=customer, status=Status.objects.get(name='No realizado'))
+        if contrareembolso:
+            order = Order.objects.create(customer=customer, status=Status.objects.get(name='No pagado'))
+        else:
+            order = Order.objects.create(customer=customer, status=Status.objects.get(name='En trámite'))
         items = cart['items']
         for item in items:
             course = Course.objects.get(name=item['name'])
@@ -351,7 +355,10 @@ def processOrder(request):
             orderItem.save()
 
     order.date_ordered = datetime.datetime.now()
-    order.status = Status.objects.get(name='Realizado')
+    if contrareembolso:
+        order.status = Status.objects.get(name='No pagado')
+    else:
+        order.status = Status.objects.get(name='En trámite')
     order.tracking_id = tracking_id
     shipping_address = ShippingAddress.objects.create()
     shipping_address.customer = None
@@ -400,11 +407,11 @@ def processOrder(request):
         customer_name = body['form']['name']
         customer_email = body['form']['email']
 
-    enviar_correo(customer_email, customer_name, full_course_info, order.tracking_id, order.date_ordered)
+    enviar_correo(customer_email, customer_name, full_course_info, order.tracking_id, order.date_ordered, order.shipping_address)
 
     return JsonResponse({'tracking': tracking_id}, safe=False)
 
-def enviar_correo(email_destino, username, resume_order, id_pedido, fecha):
+def enviar_correo(email_destino, username, resume_order, id_pedido, fecha, direccion):
     asunto = ' ¡Gracias por tu compra en OppositionUS!'
     mensaje = f'Estimado/a {username},' '\n' \
               f'En nombre de todo el equipo de OppositionUS, queremos expresar nuestro más sincero agradecimiento por tu reciente compra en nuestra tienda en línea.' '\n' '\n' \
@@ -412,6 +419,7 @@ def enviar_correo(email_destino, username, resume_order, id_pedido, fecha):
               f'Detalles de tu pedido:' '\n' \
               f'Número de seguimiento: {id_pedido}\n' \
               f'Fecha de compra: {fecha}\n' \
+              f'Dirección de envío: {direccion}\n' \
               f'Resumen de su pedido: {resume_order}\n' '\n'\
               f'Si tienes alguna pregunta sobre tu pedido o necesitas asistencia adicional, no dudes en ponerte en contacto con nuestro equipo de atención al cliente. Estamos aquí para ayudarte en cualquier momento.\n' \
               f'Esperamos que disfrutes al máximo tus nuevas clases. ¡Gracias por formar parte de la comunidad de OppositionUS!'

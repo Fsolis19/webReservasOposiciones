@@ -1,6 +1,15 @@
 {% extends 'store/main.html' %}
 {% load static %}
 {% block content %}
+
+{% if messages %}
+    <div class="alert alert-info">
+        {% for message in messages %}
+            <p>{{ message }}</p>
+        {% endfor %}
+    </div>
+{% endif %}
+
 <html>
 <head>
     <title>OppositionUS - Seguimiento de Pedido</title>

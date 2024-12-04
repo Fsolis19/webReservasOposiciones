@@ -9,7 +9,6 @@
                     <div class="card-body">
                         <h5 class="card-title">Información del Pedido</h5>
                         <p class="card-text">Estado: <strong>{{ order.status}}</strong></p>
-                        <p class="card-text">Tipo de entrega: <strong>Entrega Estándar</strong></p>
                         <p class="card-text">Fecha de Pedido: <strong>{{ order.date_ordered|date:"F d, Y H:i" }}</strong></p>
                     </div>
                 </div>
@@ -44,16 +43,6 @@
                                                 <p><strong>{{ item.course.name }}</strong> | {{item.course.name}}</p>
                                                 <p>Cantidad: {{ item.quantity }} x {{ item.course.price|floatformat:2 }}€</p> 
                                         </div>
-                                        {% if order.status.name == 'Entregado' and item.course.id not in user_ratings %}
-                                            <a href="{% url 'review_order' course_id=item.course_id %}" class="btn btn-secondary">Opinar</a>
-                                        {% elif order.status.name == 'Entregado' %}
-                                            <button class="btn btn-secondary" disabled>Ya has opinado sobre el producto</button>
-                                        {% endif %}
-                                        {% if item.course.id not in claimed_courses %}
-                                            <a href="{% url 'claim_course' course_id=item.course_id order_id=order.id %}" class="btn btn-danger">Reclamar Pedido</a>
-                                        {% else %}
-                                            <button class="btn btn-danger" disabled>Producto ya reclamado</button>
-                                        {% endif %}
                                     </div>
                                 </li>
                             {% endfor %}

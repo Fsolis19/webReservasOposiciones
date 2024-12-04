@@ -14,11 +14,7 @@ class Command(BaseCommand):
         Status.objects.all().delete()
 
         # Create all Status
-        status1, created = Status.objects.get_or_create(name='No realizado')
-        status2, created = Status.objects.get_or_create(name='Realizado')
-        status3, created = Status.objects.get_or_create(name='Gestionado')
-        status4, created = Status.objects.get_or_create(name='Enviado')
-        status5, created = Status.objects.get_or_create(name='En reparto')
-        status6, created = Status.objects.get_or_create(name='Entregado')
-        status7, created = Status.objects.get_or_create(name='Cancelado')
-        status8, created = Status.objects.get_or_create(name='Devuelto')        
+        status0, created = Status.objects.get_or_create(name='No pagado')
+        status1, created = Status.objects.get_or_create(name='Aceptado')
+        status2, created = Status.objects.get_or_create(name='Denegado')  
+        status3, created = Status.objects.get_or_create(name='En trámite')    
