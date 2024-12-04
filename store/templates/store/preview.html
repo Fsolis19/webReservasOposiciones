@@ -67,7 +67,7 @@
     document.querySelectorAll('.quantity-input').forEach(input => {
         input.addEventListener('input', function (e) {
             const courseId = e.target.dataset.course; // Obtén el ID del curso
-            const addBtn = document.querySelector(`. a-course="${courseId}"]`);
+            const addBtn = document.querySelector(`.update-cart[data-course="${courseId}"]`);
             if (addBtn) {
                 addBtn.dataset.quantity = e.target.value; // Actualiza dinámicamente el atributo data-quantity
             }
@@ -79,7 +79,8 @@
         document.querySelectorAll('.quantity-input').forEach(input => {
             input.value = 1;
         });
-    };    
+    };
+    
 </script>
 
 
