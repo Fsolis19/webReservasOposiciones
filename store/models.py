@@ -102,22 +102,6 @@ class Course(models.Model):
         verbose_name = 'Course'
         verbose_name_plural = 'Courses'
         ordering = ['name']
-
-
-class CourseReservation(models.Model):
-    course = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
-    customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
-    reservation_date = models.DateTimeField(auto_now_add=True)
-    reserved_on = models.DateTimeField()
-    is_confirmed = models.BooleanField(default=False)
-
-    def __str__(self):
-        return f'Reservation {self.id} for {self.course.name} by {self.customer.name}'
-
-    class Meta:
-        verbose_name = 'Course reservation'
-        verbose_name_plural = 'Course reservations'
-        ordering = ['-reservation_date']
  
 class Status(models.Model):
     name = models.CharField(max_length=200 , null=False, unique=True, blank=False)
@@ -152,7 +136,6 @@ class Order(models.Model):
     date_ordered = models.DateTimeField(auto_now_add=True)
     status = models.ForeignKey(Status, null=False, on_delete =models.CASCADE)
     tracking_id=models.CharField(max_length=200 , null=True, unique=True, blank=False)
-    fast_delivery = models.BooleanField(default=False, null=True, blank=False)
     shipping_address = models.ForeignKey('ShippingAddress', null=True, on_delete = models.SET_NULL)
 
     def __str__(self):
@@ -166,7 +149,7 @@ class Order(models.Model):
     @property
     def get_cart_total(self):
         orderitems = self.orderitem_set.all()
-        return sum([item.get_total for item in orderitems]) + (5 if self.fast_delivery else 0)
+        return sum([item.get_total for item in orderitems])
     
 class OrderItem(models.Model):
     course = models.ForeignKey(Course, null=True, on_delete=models.SET_NULL)
@@ -197,4 +180,19 @@ class Claim(models.Model):
     def __str__(self):
         return f'Claim {self.id} by {self.customer.email}'
 
-#------------------------------------------------------------------------------------------
+class CourseReservation(models.Model):
+    order = models.ForeignKey(Order, null=True, on_delete=models.SET_NULL)
+    customer = models.ForeignKey(Customer, null=True, on_delete=models.SET_NULL)
+    reservation_date = models.DateTimeField(auto_now_add=True)
+    reserved_on = models.DateTimeField(null=True)
+    
+    is_confirmed = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f'Reservation {self.id} for {self.order.id} by {self.order.id}'
+
+    class Meta:
+        verbose_name = 'Course reservation'
+        verbose_name_plural = 'Course reservations'
+        ordering = ['-reservation_date']
+

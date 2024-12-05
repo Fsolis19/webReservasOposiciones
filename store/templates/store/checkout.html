@@ -95,10 +95,11 @@
                               // Set up the transaction
                               createOrder: function(data, actions) {
                                    var orderTotal = document.getElementById('order-total').value;
-                                   var totalWithDelivery = parseFloat(orderTotal);
-
-                                   if(totalWithDelivery < 100){
-                                        totalWithDelivery = totalWithDelivery + 20.0
+                                   
+                                   var floatOrderTotal = orderTotal.replace(',', '.');
+                                   var totalWithDelivery = parseFloat(floatOrderTotal);
+                                   if(totalWithDelivery < 100.00){
+                                        totalWithDelivery = totalWithDelivery + 20.00
                                    }
 
                                    return actions.order.create({
@@ -222,9 +223,10 @@
           });
      });
 
-     var realTotal = parseFloat("{{order.get_cart_total|floatformat:2}}")
      window.onload = function () {
-          var realTotal = parseFloat("{{ order.get_cart_total|floatformat:2 }}");
+          var  totalInicial = "{{ order.get_cart_total|floatformat:2 }}";
+          var totalInicial = totalInicial.replace(',', '.');
+          var realTotal = parseFloat(totalInicial);
           var shippingCost = 20.00; // Coste de envío fijo si el total es menor a 100 euros
           var totalElement = document.getElementById("total");
           var coursesElement = document.getElementById("courses");
@@ -234,19 +236,31 @@
       
           // Función para actualizar el resumen del pedido
           function updateOrderSummary(total, shipping) {
-              if (total < 100.00) {
-                  var modifiedTotal = total + shipping;
-                  totalElement.innerHTML =
-                      "Total:   <strong>" + modifiedTotal.toFixed(2) + "€</strong>";
-                  coursesElement.innerHTML =
-                      "Productos:   <strong>{{ cartItems }}</strong> + Coste de papeleo (20.00€)";
-              } else {
-                  totalElement.innerHTML =
-                      "Total:   <strong>" + total.toFixed(2) + "€</strong>";
-                  coursesElement.innerHTML =
-                      "Productos:   <strong>{{ cartItems }}</strong>";
-              }
-          }
+               let modifiedTotal;
+               if (total < 100.00) {
+                   modifiedTotal = (total + shipping).toFixed(2); // Asegura dos decimales
+                   
+                   // Reemplaza el punto por coma para el formato adecuado
+                   modifiedTotal = modifiedTotal.replace('.', ',');
+                   
+                   totalElement.innerHTML =
+                       "Total:   <strong>" + modifiedTotal + "€</strong>";
+                   coursesElement.innerHTML =
+                       "Productos:   <strong>{{ cartItems }}</strong> + Coste de papeleo (20,00€)";
+               } else {
+                   modifiedTotal = total.toFixed(2); // Asegura dos decimales
+                   
+                   // Reemplaza el punto por coma para el formato adecuado
+                   modifiedTotal = modifiedTotal.replace('.', ',');
+                   
+                   totalElement.innerHTML =
+                       "Total:   <strong>" + modifiedTotal + "€</strong>";
+                   coursesElement.innerHTML =
+                       "Productos:   <strong>{{ cartItems }}</strong>";
+               }
+           }
+           
+           
       
           // Función para manejar el envío del formulario
           var form = document.getElementById("form");

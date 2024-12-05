@@ -33,5 +33,7 @@ urlpatterns = [
     path('delete_customers/<int:customer_id>/', views.delete_customer, name='delete_customer'),
     path('reservations/', views.list_reservations, name='list_reservations'),
     path('confirmar_reserva/<int:reservation_id>/', views.confirmar_reserva, name='confirmar_reserva'),
+    path('denegar_reserva/<int:reservation_id>/', views.denegar_reserva, name='denegar_reserva'),
+    path('confirmar_pago_reserva/<int:reservation_id>/', views.confirmar_pago, name='confirmar_pago'),
 ]
 

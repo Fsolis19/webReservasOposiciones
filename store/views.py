@@ -1,3 +1,4 @@
+from queue import Full
 from django.shortcuts import get_object_or_404, render, redirect
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import get_object_or_404, render
@@ -53,7 +54,7 @@ def store(request):
 
     if request.user.is_authenticated:
         customer = request.user.customer
-        order, created = Order.objects.get_or_create(customer=customer, status=Status.objects.get(name='No realizado'))
+        order, created = Order.objects.get_or_create(customer=customer, status=Status.objects.get(name='No pagado'))
         items = order.orderitem_set.all()
         cartItems = order.get_cart_items
     else:
@@ -406,6 +407,14 @@ def processOrder(request):
     else:
         customer_name = body['form']['name']
         customer_email = body['form']['email']
+        
+    CourseReservation.objects.create(
+        order=order,
+        customer=order.customer,
+        reservation_date=datetime.datetime.now(),
+        reserved_on=None,  # Esto lo hace NULL en la base de datos
+        is_confirmed=False  # Ajusta según sea necesario
+    )
 
     enviar_correo(customer_email, customer_name, full_course_info, order.tracking_id, order.date_ordered, order.shipping_address)
 
@@ -675,6 +684,7 @@ from django.contrib import messages
 @login_required
 def list_reservations(request):
     customer = Customer.objects.get(user=request.user)
+    
     if not customer.admin:
         return redirect('store')
 
@@ -682,10 +692,10 @@ def list_reservations(request):
 
     context = {
         'reservations': reservations
+        
     }
 
     return render(request, 'store/list_reservations.html', context)
-
 
 
 @login_required
@@ -697,13 +707,64 @@ def confirmar_reserva(request, reservation_id):
     reservation = get_object_or_404(CourseReservation, id=reservation_id)
 
     if request.method == 'POST':
-        reservation.is_confirmed = not reservation.is_confirmed
+        reservation.is_confirmed = True
+        reservation.reserved_on = datetime.datetime.now()
         reservation.save()
-        
-        if reservation.is_confirmed:
-            messages.success(request, f'La reserva para {reservation.course.name} ha sido confirmada.')
+        order = reservation.order
+        if order:  # Asegúrate de que la orden existe
+            order.status = Status.objects.get(name='Aceptada')
+            order.save()  # Guarda los cambios en el modelo Order
+
+            messages.success(request, f'La reserva para {reservation.order.tracking_id} ha sido aceptada.')
         else:
-            messages.success(request, f'La reserva para {reservation.course.name} ha sido revocada.')
+            messages.error(request, 'La reserva no ha podido se aceptada.')
+        return redirect('list_reservations')
+
+    return redirect('list_reservations')
+
+@login_required
+def denegar_reserva(request, reservation_id):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+
+    reservation = get_object_or_404(CourseReservation, id=reservation_id)
+
+    if request.method == 'POST':
+        reservation.is_confirmed = False
+        reservation.reserved_on = datetime.datetime.now()
+        reservation.save()
+        order = reservation.order
+        if order:  # Asegúrate de que la orden existe
+            order.status = Status.objects.get(name='Denegada')
+            order.save()  # Guarda los cambios en el modelo Order
+
+            messages.success(request, f'La reserva para {reservation.order.tracking_id} ha sido denegada.')
+        else:
+            messages.error(request, 'La reserva no se ha podido denegar.')
+
+        return redirect('list_reservations')
+
+    return redirect('list_reservations')
+
+@login_required
+def confirmar_pago(request, reservation_id):
+    customer = Customer.objects.get(user=request.user)
+    if not customer.admin:
+        return redirect('store')
+
+    reservation = get_object_or_404(CourseReservation, id=reservation_id)
+
+    if request.method == 'POST':
+        # Cambiar el estado de la orden asociada
+        order = reservation.order
+        if order:  # Asegúrate de que la orden existe
+            order.status = Status.objects.get(name='En trámite')
+            order.save()  # Guarda los cambios en el modelo Order
+
+            messages.success(request, f'La reserva para {reservation.order.tracking_id} ha sido pagada.')
+        else:
+            messages.error(request, 'No se ha podido realizar el pago de la reserva.')
 
         return redirect('list_reservations')
 

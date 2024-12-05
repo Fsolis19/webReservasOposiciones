@@ -56,17 +56,28 @@
     <script>
        window.onload = function () {
 
-            var quantity = parseFloat("{{ order.get_cart_total|floatformat:2 }}");
-            var shippingCost = 20.00; 
-            var costoTotal = document.getElementById("total");
-            if (quantity < 100.00) {
-                var newQuantity = quantity + shippingCost;
-                costoTotal.innerHTML = "Costo Total del Pedido:   <strong>" + newQuantity + "€</strong>";
-            } else {
-                costoTotal.innerHTML = "Costo Total del Pedido:   <strong>" + quantity + "€</strong>";
-            }
+        var  totalInicial = "{{ order.get_cart_total|floatformat:2 }}";
+        var totalInicial = totalInicial.replace(',', '.');
+        var quantity = parseFloat(totalInicial);
+        var shipping = 20.00; // Coste de envío fijo si el total es menor a 100 euros
+        var costoTotal = document.getElementById("total");
+        let modifiedTotal;
+        if (quantity < 100.00) {
+            modifiedTotal = (quantity + shipping).toFixed(2); // Asegura dos decimales
+            
+            // Reemplaza el punto por coma para el formato adecuado
+            modifiedTotal = modifiedTotal.replace('.', ',');
+            costoTotal.innerHTML = "Costo Total del Pedido:   <strong>" + modifiedTotal + "€</strong>";
+        } else {
+            modifiedTotal = quantity.toFixed(2); // Asegura dos decimales
+            
+            // Reemplaza el punto por coma para el formato adecuado
+            modifiedTotal = modifiedTotal.replace('.', ',');
+            
+            costoTotal.innerHTML = "Costo Total del Pedido:   <strong>" + quantity + "€</strong>";
+        }
 
-        };
+    };
         
     </script>
 {% endblock content %}

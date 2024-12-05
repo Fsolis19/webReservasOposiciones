@@ -15,12 +15,10 @@
     <thead>
         <tr>
             <th>ID</th>
-            <th>Curso</th>
-            <th>Cliente</th>
-            <th>Fecha de Reserva</th>
-            <th>Fecha Reservada</th>
-            <th>Método de Pago</th>
-            <th>Confirmada</th>
+            <th>Pedido</th>
+            <th>Fecha del pedido</th>
+            <th>Fecha de la reserva</th>
+            <th>Estado</th>
             <th>Acciones</th>  <!-- Nueva columna para las acciones -->
         </tr>
     </thead>
@@ -28,20 +26,38 @@
         {% for reservation in reservations %}
         <tr>
             <td>{{ reservation.id }}</td>
-            <td>{{ reservation.course.name }}</td>
-            <td>{{ reservation.customer.name }}</td>
+            <td>{{ reservation.order.tracking_id }}</td>
             <td>{{ reservation.reservation_date }}</td>
             <td>{{ reservation.reserved_on }}</td>
-            <td>{{ reservation.get_payment_method_display }}</td>
-            <td>{% if reservation.is_confirmed %}Sí{% else %}No{% endif %}</td>
+            <td>{{ reservation.order.status }}</td>
             <td>
-                <form method="post" action="{% url 'confirmar_reserva' reservation.id %}" style="display:inline;">
-                    {% csrf_token %}
-                    <button type="submit" class="btn btn-warning btn-sm">
-                        {% if reservation.is_confirmed %}No confirmar{% else %}Confirmar{% endif %}
-                    </button>
-                </form>
+                {% if reservation.order.status|stringformat:"s" == 'No pagado' %}
+                    <form method="post" action="{% url 'confirmar_pago' reservation.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-warning btn-sm">
+                            Pagado
+                        </button>
+                    </form>
+                {% else %}
+                    {% if reservation.order.status|stringformat:"s" == 'En trámite' or not reservation.is_confirmed%}
+                        <form method="post" action="{% url 'confirmar_reserva' reservation.id %}" style="display:inline;">
+                            {% csrf_token %}
+                                <button type="submit" class="btn btn-success btn-sm">
+                                    Aceptar reserva
+                                </button>
+                        </form>
+                    {% endif %}
+                    {% if reservation.order.status|stringformat:"s" == 'En trámite' or reservation.is_confirmed%}
+                        <form method="post" action="{% url 'denegar_reserva' reservation.id %}" style="display:inline;">
+                            {% csrf_token %}
+                                <button type="submit" class="btn btn-danger btn-sm">
+                                    Denegar reserva
+                                </button>
+                        </form>
+                    {% endif %}
+                {% endif %}
             </td>
+            
         </tr>
         {% endfor %}
     </tbody>
