@@ -7,12 +7,11 @@ class ListCustomersViewTest(TestCase):
 
     def setUp(self):
         self.status_no_realizado = Status.objects.create(name='No realizado')
+        self.status_no_pagado = Status.objects.create(name='No pagado')  # Crear el estado requerido
 
-    
         self.user_normal = OppositionUser.objects.create_user(email='normaluser@example.com', password='password')
         self.user_admin = OppositionUser.objects.create_user(email='adminuser@example.com', password='password', is_admin=True)
 
-        
         self.customer_normal = Customer.objects.create(
             user=self.user_normal, 
             name='Normal User', 
@@ -21,6 +20,7 @@ class ListCustomersViewTest(TestCase):
             phone=123456789, 
             admin=False
         )
+
         self.customer_admin = Customer.objects.create(
             user=self.user_admin, 
             name='Admin User', 
@@ -76,10 +76,12 @@ class ListCustomersViewTest(TestCase):
 class StoreViewTest(TestCase):
 
     def setUp(self):
+        self.status_no_realizado = Status.objects.create(name='No realizado')
+        self.status_no_pagado = Status.objects.create(name='No pagado')  
+
         self.course_type_1 = CourseType.objects.create(name='Mathematics')
         self.course_type_2 = CourseType.objects.create(name='Science')
 
-        
         self.course_1 = Course.objects.create(
             name='Math 101', 
             price=100, 
@@ -101,11 +103,24 @@ class StoreViewTest(TestCase):
 
         self.user_normal = OppositionUser.objects.create_user(email='normaluser@example.com', password='password')
         self.user_admin = OppositionUser.objects.create_user(email='adminuser@example.com', password='password', is_admin=True)
-
-        self.customer_normal = Customer.objects.create(user=self.user_normal, name='Normal User', email='normaluser@example.com', adress='123 St', phone=123456789, admin=False)
-        self.customer_admin = Customer.objects.create(user=self.user_admin, name='Admin User', email='adminuser@example.com', adress='456 St', phone=987654321, admin=True)
-
-        self.order = Order.objects.create(customer=self.customer_normal, status=Status.objects.create(name='No realizado'))
+        
+        self.customer_normal = Customer.objects.create(
+            user=self.user_normal, 
+            name='Normal User', 
+            email='normaluser@example.com', 
+            adress='123 St', 
+            phone=123456789, 
+            admin=False
+        )
+        self.customer_admin = Customer.objects.create(
+            user=self.user_admin, 
+            name='Admin User', 
+            email='adminuser@example.com', 
+            adress='456 St', 
+            phone=987654321, 
+            admin=True
+        )
+        self.order = Order.objects.create(customer=self.customer_normal, status=self.status_no_realizado)
 
     def test_store_page_loads(self):
         response = self.client.get(reverse('store'))
@@ -172,8 +187,11 @@ class CourseDetailsViewTest(TestCase):
     
     @classmethod
     def setUpTestData(cls):
+        # Crear estados necesarios
         cls.status_no_realizado = Status.objects.create(name='No realizado')
+        cls.status_no_pagado = Status.objects.create(name='No pagado')  # Estado necesario
 
+        # Crear usuario y cliente
         cls.user = OppositionUser.objects.create_user(
             email='testuser@example.com',  
             password='testpassword'        
@@ -181,6 +199,7 @@ class CourseDetailsViewTest(TestCase):
 
         cls.customer = Customer.objects.create(user=cls.user, phone='123456789')  
 
+        # Crear tipo de curso y cursos
         course_type = CourseType.objects.create(name='Online')
 
         cls.course = Course.objects.create(
@@ -190,7 +209,7 @@ class CourseDetailsViewTest(TestCase):
             price=100.00,  
             course_type=course_type,  
             city='Madrid', 
-            is_available = True,
+            is_available=True,
             capacity=25  
         )
 

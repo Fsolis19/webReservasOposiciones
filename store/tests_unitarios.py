@@ -1,6 +1,6 @@
 from django.core.exceptions import ValidationError
 from django.test import TestCase
-from .models import Customer, CourseType, Course,CourseReservation
+from .models import Customer, CourseType, Course,CourseReservation, Order, Status
 
 class CustomerModelTest(TestCase):
     def setUp(self):
@@ -71,15 +71,25 @@ class CourseReservationModelTest(TestCase):
             phone=987654321,
             admin=False
         )
+        self.status = Status.objects.create(name="Pending")
+        self.order = Order.objects.create(
+            customer=self.customer,
+            date_ordered="2024-01-14T12:00:00Z",
+            status=self.status,
+            tracking_id="TRACK123456",
+            shipping_address=None  
+        )
+        
         self.reservation = CourseReservation.objects.create(
-            course=self.course,
+            order=self.order,
             customer=self.customer,
             reserved_on="2024-01-15T10:00:00Z",
             is_confirmed=False,
         )
 
     def test_reservation_str(self):
+
         self.assertEqual(
-            str(self.reservation),
-            f"Reservation {self.reservation.id} for {self.course.name} by {self.customer.name}"
-        )  
+        str(self.reservation),
+        f"Reservation {self.reservation.id} for {self.order.id} by {self.customer.id}"
+    )
