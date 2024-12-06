@@ -17,4 +17,5 @@ class Command(BaseCommand):
         status0, created = Status.objects.get_or_create(name='No pagado')
         status1, created = Status.objects.get_or_create(name='Aceptado')
         status2, created = Status.objects.get_or_create(name='Denegado')  
-        status3, created = Status.objects.get_or_create(name='En trámite')    
+        status3, created = Status.objects.get_or_create(name='En trámite')
+        status4, created = Status.objects.get_or_create(name='No realizado')     
